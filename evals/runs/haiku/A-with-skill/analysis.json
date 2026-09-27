@@ -1,0 +1,40 @@
+{
+  "question": "Чи зростає інтерес до астрономії в україномовній Wikipedia?",
+  "langs": ["uk"],
+  "window": {"months": 12, "end": "latest"},
+  "history_start": "2016-01",
+  "baselines": [2019, 2021],
+  "baskets": [
+    {
+      "id": "astronomy",
+      "role": "target",
+      "label": "Астрономія",
+      "items": [
+        {"qid": "Q333"}
+      ]
+    },
+    {
+      "id": "astronomy_related",
+      "role": "context",
+      "label": "Смежні науки",
+      "items": [
+        {"qid": "Q338", "group": "theory"},
+        {"qid": "Q483666", "group": "methods"},
+        {"qid": "Q544", "group": "system"}
+      ]
+    },
+    {
+      "id": "celestial_objects",
+      "role": "control",
+      "label": "Небесні об'єкти",
+      "items": [
+        {"qid": "Q634", "group": "planets"},
+        {"qid": "Q523", "group": "stars"},
+        {"qid": "Q318", "group": "galaxies"},
+        {"qid": "Q589", "group": "exotic"},
+        {"qid": "Q405", "group": "planets"},
+        {"qid": "Q1", "group": "general"}
+      ]
+    }
+  ]
+}

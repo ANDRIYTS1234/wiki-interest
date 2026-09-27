@@ -1,0 +1,26 @@
+{
+  "question": "Is interest in intermittent fasting growing in Polish and Czech Wikipedia over the last two years?",
+  "langs": ["pl", "cs"],
+  "window": {"months": 24},
+  "baskets": [
+    {
+      "id": "intermittent_fasting",
+      "role": "target",
+      "label": "Intermittent Fasting (Czech only)",
+      "items": [
+        {"qid": "Q1666254"}
+      ]
+    },
+    {
+      "id": "health_diet_comparable",
+      "role": "context",
+      "label": "Health & Diet (Comparable across langs)",
+      "items": [
+        {"qid": "Q44602"},
+        {"qid": "Q12174"},
+        {"qid": "Q718113"},
+        {"qid": "Q657193"}
+      ]
+    }
+  ]
+}

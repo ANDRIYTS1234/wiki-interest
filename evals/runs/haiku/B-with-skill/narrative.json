@@ -1,0 +1,16 @@
+{
+  "title": "Intermittent Fasting Interest",
+  "answer": "Czech interest declining {intermittent_fasting.cs.window.change_norm:pct}. Polish has no article.",
+  "findings": [
+    "Czech 'Přerušovaný půst' declined {intermittent_fasting.cs.window.change_norm:pct}. Polish Wikipedia lacks this article—a coverage gap, not zero demand."
+  ],
+  "recommendation": "Wikipedia measures attention, not commercial demand. Validate with Google Trends and user surveys before launch.",
+  "caveats": [
+    "Cannot compare Polish-Czech (no Polish article)",
+    "Wikipedia does not indicate purchase intent"
+  ],
+  "next_steps": [
+    "Check Google Trends for search volume in both languages",
+    "Survey target users on purchase intent"
+  ]
+}

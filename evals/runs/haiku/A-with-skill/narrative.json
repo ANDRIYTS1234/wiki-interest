@@ -1,0 +1,13 @@
+{
+  "title": "Чи зростає інтерес до астрономії в україномовній Wikipedia?",
+  "answer": "Ні. За останній рік астрономія втратила {astronomy.uk.window.change_norm:pct}, пов'язані науки — {astronomy_related.uk.window.change_norm:pct}. Порівняно з 2019 роком падіння {astronomy.uk.baselines.2019.change_norm:pct}.",
+  "findings": [
+    "Астрономія падає більше ніж контрольні групи {celestial_objects.uk.window.change_norm:pct}",
+    "Тренд послідовний в часі з невизначеністю через зміни ботів Wikimedia у 2025"
+  ],
+  "recommendation": "Не додавати курс на основі цих даних. Потрібна пряма перевірка реального попиту.",
+  "next_steps": [
+    "Google Trends для астрономії на українському ринку",
+    "Опитування цільової аудиторії щодо інтересу"
+  ]
+}
