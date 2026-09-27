@@ -13,7 +13,8 @@
 - high direction: "the decline is consistent across all checks"
 - medium direction: "the direction holds, but the uncertainty range includes no change"
 - low direction: "the data does not support a clear direction"
-- Always give the reasons from `confidence.reasons[]` in one short clause.
+- Always give the reasons in one short clause: `<basket>.<lang>.confidence.window.reasons[]` (or `.baselines.<year>`) in metrics.json.
+- Caps: `LOW_VOLUME`, `PANEL_SMALL`, `REDIRECTS_SKIPPED` → direction at most medium; `BOT_RECLASSIFICATION_2025`, `PRE_2020_BOT_CLASS` → magnitude at most medium for that comparison. With fewer than 3 panel articles there is no interval, so direction is at most medium.
 
 ## Flags → what to tell the user
 
@@ -40,7 +41,7 @@
 ```json
 {
   "title": "Is interest in astronomy growing in Ukrainian Wikipedia?",
-  "answer": "No. The topic's share of attention fell by {target.uk.window.index_norm:pct} over the last year.",
+  "answer": "No. The topic's share of attention changed by {target.uk.window.change_norm:pct} over the last year.",
   "findings": ["...", "..."],
   "recommendation": "...",
   "next_steps": ["Check search volume for ...", "Run a landing-page test ..."],
@@ -48,7 +49,8 @@
 }
 ```
 
-- Numbers only via placeholders copied from the analyze output. Years (2019) may be written directly.
+- Numbers only via placeholders copied from `placeholders` in the analyze output. Formats: `pct` for `change_norm`/`share_change` (fractions → signed %), `x` for `index_norm` and `compare…ratio`, `ci` for `…_ci` intervals, `int` for counts. `{path:pct}` on `index_norm` is wrong (0.85 would print as +85%). Four-digit years (2019) may be written directly; any other digit is rejected.
+- Paths: `<basket>.<lang>.window.<metric>`, `<basket>.<lang>.baselines.<year>.<metric>`, `<basket>.<lang>.groups.<group>.window.<metric>`, `compare.<basket>.<l1>_vs_<l2>.window.ratio`, `compare.<target>_vs_<control>.<lang>.window.ratio`.
 - Up to 4 findings. Mark causes as "[hypothesis]" unless sourced.
 - Answer first, then why, then what to do. No methodology in the main text — it goes to the appendix automatically.
 - Write in the user's language; set `--report-lang` accordingly (uk or en).

@@ -27,15 +27,16 @@ Every command prints one JSON object to stdout. Non-zero exit = stop and read `e
 1. **Clarify** topic, languages (Wikipedia language codes: uk, pl, cs, de…), and period. Default period: last 12 complete months vs the same months a year earlier, history from 2016. Ask only if the topic or languages are genuinely unclear.
 2. **Resolve.** Write `resolve.json` (never pass titles as shell arguments):
    `{"items": [{"query": "<topic>", "query_lang": "<lang>"}], "langs": ["pl", "cs"]}`
-   Run `$W resolve --input resolve.json`. Read `attention[]` first.
-   - `needs_choice` → pick the right `qid` from `candidates` by description; if unsure, ask the user.
+   Run `$W resolve --input resolve.json`. Read `attention[]` first. Full details: `resolve_result.json` in the workdir.
+   - status `needs_choice` → pick the right `qid` from `candidates` by description; if unsure, ask the user.
+   - `disambiguation` in a language → use a `qid` from `candidates`, never the disambiguation page.
    - `missing` in a language → say so plainly. `search_hits` are **not equivalents**; use one as a proxy only if the user agrees.
 3. **Build the basket.** One article is never enough to judge a topic. Propose 5–20 related Wikidata items (core article + subtopics), grouped if useful (e.g. `rules`, `players`). See `references/basket-building.md`. Resolve them, show the user the list with statuses, and confirm before fetching.
 4. **Write `analysis.json`** (format in `references/basket-building.md`): baskets with roles `target` / `context` / `control`, `langs`, `window`, `baselines`.
-5. **Fetch.** `$W fetch --spec analysis.json --dry-run` first. If `estimated_minutes` > 2, tell the user how long it will take. Then `$W fetch --spec analysis.json`.
-6. **Analyze.** `$W analyze --spec analysis.json`. Read the stdout summary: direction, `index_norm` with interval, `share_change`, confidence, flags. Open `metrics.json` only for details you need.
-7. **Write `narrative.json`** — numbers ONLY as placeholders copied from the analyze output, e.g. `{target.pl.window.index_norm:pct}`. Any other digit (except years) is rejected. See `references/interpreting.md`.
-8. **Report.** `$W report --metrics <metrics.json> --narrative narrative.json --out out/report.pdf`. If it fails because text does not fit, shorten the text — do not drop caveats.
+5. **Fetch.** `$W fetch --spec analysis.json --dry-run` first. If `estimated_minutes` > 2, tell the user how long it will take. Then `$W fetch --spec analysis.json`. For a very large basket you may first run `--redirects none` (flag `REDIRECTS_SKIPPED`), but rerun without it before the final answer. Exit 5 = some series failed: report them; `--allow-partial` only if the user accepts `PARTIAL_DATA`.
+6. **Analyze.** `$W analyze --spec analysis.json`. Read the stdout: `summary[]` (per basket × language: direction, `index_norm` with interval, `share_change`, direction/magnitude confidence, flag codes), `compare[]`, `placeholders`. Open `metrics_file` only for details (flag details, reasons, panels, exclusions).
+7. **Write `narrative.json`** — numbers ONLY as placeholders copied from `placeholders` in the analyze output, e.g. `{target.pl.window.change_norm:pct}` or `{target.pl.window.index_norm:x}`. Any other digit (except years) is rejected. See `references/interpreting.md`.
+8. **Report.** `$W report --metrics <metrics_file> --narrative narrative.json --out out/report.pdf --report-lang uk` (`en` for English). If it fails because text does not fit, shorten the text — do not drop caveats.
 9. **Answer in chat** in the user's language: the direct answer, confidence and why, what would change the conclusion, and the next cheap step to validate real demand. Link the PDF and `appendix.md`.
 
 ## Rules (each one fixes a real failure seen without this skill)
