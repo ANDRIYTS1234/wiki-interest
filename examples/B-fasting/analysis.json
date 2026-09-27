@@ -1,0 +1,18 @@
+{
+  "question": "Порівняй зростання інтересу до інтервального голодування в польськомовній та чеськомовній Wikipedia за останні два роки.",
+  "langs": ["pl", "cs"],
+  "window": {"months": 24, "end": "2026-08"},
+  "history_start": "2016-01",
+  "baselines": [2022],
+  "baskets": [
+    {
+      "id": "target",
+      "role": "target",
+      "label": "Інтервальне голодування",
+      "items": [
+        {"qid": "Q1666254"},
+        {"lang": "pl", "title": "Głodówka lecznicza", "proxy_for": "Q1666254"}
+      ]
+    }
+  ]
+}
