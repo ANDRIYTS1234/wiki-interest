@@ -55,7 +55,7 @@ uv run wiki-interest --cache-dir examples/B-fasting/cache --workdir demo report 
   --metrics demo/metrics.json --narrative examples/B-fasting/narrative.json --out demo/report.pdf
 ```
 
-`examples/A-astronomy/` is a larger spec (30 + 10 Wikidata items) that needs a live fetch.
+`examples/A-astronomy/` is a larger spec (20 + 10 Wikidata items) that needs a live fetch.
 
 ## Tests
 
