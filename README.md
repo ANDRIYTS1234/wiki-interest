@@ -135,6 +135,12 @@ tool call with tokens and timing), `transcript.md`, `summary.json` (steps, token
 final answer, checks to grade by hand) and `sandbox/` with the agent's files. The model executes
 real shell commands: use a disposable machine or container.
 
+**Runs so far:** Claude Haiku 4.5 in Claude Code desktop, live data — scenario A before the
+"run it yourself" rule and with the skill, scenario B with the skill. Transcripts, specs and the
+PDFs the model produced are in [evals/runs/haiku/](evals/runs/haiku/); grades against
+`evals/scenarios.yaml`, what each run exposed and the commit that fixed it are in
+[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) («Прогони навички на Haiku 4.5», «Результати»).
+
 ## Layout
 
 ```
