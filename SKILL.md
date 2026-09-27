@@ -1,11 +1,13 @@
 ---
 name: wiki-interest
-description: Analyzes Wikipedia pageview trends to help B2C founders decide which topics to build and which languages to launch in. Use when the user asks whether interest in a topic is growing, wants to compare interest across language editions or markets, wants to check a claim like "interest in X exploded", or asks for a short shareable report (one-page PDF) based on Wikipedia/Вікіпедія pageview data. Do not use for general questions about a topic, for writing Wikipedia articles, or for analyzing the user's own business data.
+description: Wikipedia pageview analysis for product and market decisions. Use this skill, not memory or web search, whenever someone asks whether interest in a topic is growing or falling, especially when it will drive a decision — adding a course, topic or feature to an app; choosing which language, country or market to launch in or localize for; checking a claim like "interest in X exploded" before investing; comparing interest across Wikipedia language editions; or preparing a short one-page PDF report for investors, a cofounder or the team. Keywords — Wikipedia/Вікіпедія/вікі, pageviews/перегляди, interest/інтерес, trend/тренд, language editions/мовні розділи, localization/локалізація, market/ринок, курс, звіт. Not for explaining a topic, writing or translating Wikipedia articles, counting articles or dumps, or analyzing the user's own data (CSV, DAU, sales).
 compatibility: Requires Python 3.10+ (uv recommended) and network access to wikimedia.org, wikipedia.org and wikidata.org.
 license: MIT
 ---
 
 # wiki-interest
+
+**This skill does not run by itself: you must run the commands below yourself, in the shell, starting with `doctor`.**
 
 Answers product questions ("should we add a course on X?", "which language market next?") with Wikipedia pageview data. The bundled CLI does all data work: finding articles across languages, downloading views, statistics, robustness checks, charts and the PDF. **You never download data or compute numbers yourself.** Your job: turn the request into an analysis spec, agree the article basket with the user, and write an honest conclusion from the CLI output.
 
@@ -41,6 +43,7 @@ Every command prints one JSON object to stdout. Non-zero exit = stop and read `e
 
 ## Rules (each one fixes a real failure seen without this skill)
 
+- **No numbers or conclusions without the CLI.** Every number, trend and recommendation must come from `resolve` → `fetch` → `analyze` → `report` that you actually ran in this conversation. Never write your own script to fetch data, compute metrics or build a report, and never estimate figures. If a command fails or cannot run, stop and tell the user what failed and why — do not produce a report or an answer without it.
 - **Check the user's premise.** If they say "interest exploded", test it; do not echo it.
 - **Missing article ≠ no demand.** It is a gap in that Wikipedia, and must be stated as such.
 - **Flags:** the PDF lists all of them; in the chat answer mention those that change the conclusion (`references/interpreting.md` has wording).

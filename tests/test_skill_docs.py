@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import re
+
+import pytest
 from pathlib import Path
 
 from wiki_interest.analyze.quality import SEVERITY
@@ -48,3 +50,20 @@ def test_skill_frontmatter():
     assert set(fields) <= {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
     for ref in re.findall(r"`(references/[a-z-]+\.md)`", text):
         assert (ROOT / ref).is_file(), ref
+
+
+def test_skill_frontmatter_is_valid_yaml():
+    yaml = pytest.importorskip("yaml")
+    text = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    fm = yaml.safe_load(re.match(r"^---\n(.*?)\n---\n", text, flags=re.S).group(1))
+    assert fm["name"] == "wiki-interest" and 0 < len(fm["description"]) <= 1024
+
+
+def test_skill_opens_with_run_it_yourself_and_forbids_own_numbers():
+    text = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    body = text.split("\n---\n", 1)[1]
+    first_para = [b for b in body.split("\n\n") if b.strip() and not b.strip().startswith("#")][0]
+    assert "does not run by itself" in first_para and "doctor" in first_para
+    rules = body.split("## Rules", 1)[1]
+    first_rule = [l for l in rules.splitlines() if l.startswith("- ")][0]
+    assert "No numbers or conclusions without the CLI" in first_rule
