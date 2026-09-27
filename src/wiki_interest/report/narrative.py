@@ -85,8 +85,20 @@ CHANGE_KEYS = {"change_abs", "change_norm", "share_change", "section_change"}  #
 
 
 def _check_kind(path: str, kind: str, where: str) -> None:
-    """:pct on a ratio would print 0.85 as +85% (a 15% fall); :x on a change would print -0.15 as -0,15x."""
+    """:pct on a ratio would print 0.85 as +85% (a 15% fall); :x on a change would print -0.15 as -0,15x.
+
+    Every value under `variants` is a change (index_norm - 1), whatever its name says: e.g.
+    variants.median_ratio is the median-based change, not a ratio.
+    """
     key = path.rsplit(".", 1)[-1]
+    if ".variants." in f".{path}":
+        if kind == "x":
+            raise InputError(
+                f"{where}: {{{path}:x}} — robustness variants are changes (0 = no change), not multipliers",
+                hint=f"Use {{{path}:pct}}",
+                code="bad_placeholder_format",
+            )
+        return
     if key in RATIO_KEYS and kind == "pct":
         suggestion = path.rsplit(".", 1)[0] + (".change_norm:pct" if key == "index_norm" else f".{key}:x")
         raise InputError(

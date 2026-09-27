@@ -1,0 +1,18 @@
+{
+  "title": "Чи зростає інтерес до астрономії в українській Вікіпедії?",
+  "answer": "Ні. За останній рік частка астрономії в трафіку uk.wikipedia змінилась на {target.uk.window.change_norm:pct}; напрям стійкий до складу кошика, сплесків і аномальних місяців.",
+  "findings": [
+    "Індекс кошика {target.uk.window.index_norm:x} {target.uk.window.index_norm_ci:ci}; без однієї статті від {target.uk.window.variants.loo_min:pct} до {target.uk.window.variants.loo_max:pct}, без найбільших статей {target.uk.window.variants.no_top3:pct}.",
+    "Без аномальних місяців (імовірно, невідфільтровані боти) зміна {target.uk.window.variants.no_anomalies:pct}.",
+    "Інші природничі науки падають ще швидше ({control.uk.window.change_norm:pct}): відношення індексів астрономії до контролю {compare.target_vs_control.uk.window.ratio:x} {compare.target_vs_control.uk.window.ratio_ci:ci}.",
+    "Проти 2021 року зміна {target.uk.baselines.2021.change_norm:pct}: спад триває кілька років, а не лише останній рік."
+  ],
+  "recommendation": "Не обґрунтовувати курс з астрономії зростанням інтересу у Вікіпедії: його немає. Якщо курс розглядається з інших причин, спершу перевірити попит напряму.",
+  "next_steps": [
+    "Перевірити пошуковий попит на курс з астрономії українською.",
+    "Запустити лендінг курсу з невеликим бюджетом і виміряти записи."
+  ],
+  "caveats": [
+    "Перегляди Вікіпедії вимірюють увагу до теми, а не готовність платити за курс."
+  ]
+}

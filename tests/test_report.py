@@ -314,3 +314,12 @@ def test_cli_report_rejects_non_metrics_file(tmp_path):
     narrative_file.write_text(json.dumps({"title": "T", "answer": "A", "findings": ["f"], "recommendation": "r"}), encoding="utf-8")
     code = main(["--workdir", str(tmp_path / "w"), "report", "--metrics", str(bad), "--narrative", str(narrative_file), "--out", str(tmp_path / "r.pdf")])
     assert code == 2
+
+
+def test_robustness_variants_are_changes_even_when_named_ratio(metrics):
+    """variants.median_ratio holds index_norm - 1: :pct is right, :x would print -0.5 as -0,50×."""
+    out = render_text("{target.uk.window.variants.median_ratio:pct} {target.uk.window.variants.no_top3:pct}", metrics, "en", "x")
+    assert out.count("%") == 2
+    with pytest.raises(InputError) as ei:
+        render_text("{target.uk.window.variants.median_ratio:x}", metrics, "en", "x")
+    assert ei.value.code == "bad_placeholder_format"
