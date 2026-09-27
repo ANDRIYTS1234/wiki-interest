@@ -170,6 +170,7 @@ def main(argv: list[str] | None = None, *, session: requests.Session | None = No
         result = COMMANDS[args.command](args, ctx)
     except WikiInterestError as exc:
         error, code = exc.to_json(), exc.exit_code
+        result = dict(exc.extra)
     except KeyboardInterrupt:
         error, code = {"code": "interrupted", "message": "Interrupted by user", "hint": "Rerun; cached data is kept"}, 1
     except Exception as exc:
@@ -187,8 +188,7 @@ def main(argv: list[str] | None = None, *, session: requests.Session | None = No
     }
     if error is not None:
         payload["error"] = error
-    else:
-        payload.update(result)
+    payload.update(result)
     emit(payload)
     return code
 

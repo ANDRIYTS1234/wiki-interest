@@ -125,4 +125,14 @@ def run_doctor(settings: Settings, session: requests.Session | None = None, *, o
             checks.append(_check(f"network:{domain}", lambda url=url: check_domain(client, url)))
     failed = [c["name"] for c in checks if c["status"] == "fail"]
     warnings = [c["name"] for c in checks if c["status"] == "warn"]
-    return {"healthy": not failed, "failed": failed, "warnings": warnings, "checks": checks}
+    report = {"healthy": not failed, "failed": failed, "warnings": warnings, "checks": checks}
+    if failed:
+        # Exit code 1, not just a JSON field: weak models react to exit codes more reliably.
+        hints = [f"{c['name']}: {c['hint']}" for c in checks if c["status"] == "fail" and c.get("hint")]
+        raise WikiInterestError(
+            f"{len(failed)} check(s) failed: {', '.join(failed)}",
+            hint="; ".join(hints),
+            code="doctor_failed",
+            extra=report,
+        )
+    return report

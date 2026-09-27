@@ -58,9 +58,13 @@ def test_doctor_reports_unreachable_domain(capsys):
         return make_response(200, {})
 
     code, out, _ = run_main(capsys, ["doctor"], session=FakeSession(responder))
-    assert code == 0
+    assert code == 1
+    assert out["ok"] is False
+    assert out["error"]["code"] == "doctor_failed"
+    assert "network:wikidata.org" in out["error"]["hint"]
     assert out["healthy"] is False
     assert out["failed"] == ["network:wikidata.org"]
+    assert out["warnings"] == ["user_agent_contact"]
     check = next(c for c in out["checks"] if c["name"] == "network:wikidata.org")
     assert "www.wikidata.org" in check["detail"] and check["hint"]
 

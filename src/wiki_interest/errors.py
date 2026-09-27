@@ -16,6 +16,7 @@ class WikiInterestError(Exception):
         *,
         code: str | None = None,
         details: dict[str, Any] | None = None,
+        extra: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message)
         self.message = message
@@ -23,6 +24,8 @@ class WikiInterestError(Exception):
         if code:
             self.code = code
         self.details = details or {}
+        # Top-level fields added next to "error" in the CLI output (e.g. doctor's checks).
+        self.extra = extra or {}
 
     def to_json(self) -> dict[str, Any]:
         out: dict[str, Any] = {"code": self.code, "message": self.message, "hint": self.hint}
