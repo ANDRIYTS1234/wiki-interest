@@ -96,7 +96,7 @@ def test_unknown_command_exit_2(capsys):
     assert code == 2 and out["ok"] is False
 
 
-@pytest.mark.parametrize("argv", [["analyze", "--spec", "x.json"]])
+@pytest.mark.parametrize("argv", [["report", "--metrics", "m.json", "--narrative", "n.json", "--out", "r.pdf"]])
 def test_not_implemented_commands(capsys, argv):
     code, out, _ = run_main(capsys, argv)
     assert code == 1 and out["error"]["code"] == "not_implemented"

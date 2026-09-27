@@ -69,10 +69,17 @@ def data_as_of(spec: AnalysisSpec) -> str:
 
 
 def start_month(spec: AnalysisSpec, end_month: str) -> str:
-    """Earliest month needed: history_start, the same months a year before the window, baseline years."""
-    prior_window_start = add_months(end_month, -(12 + spec.window_months - 1))
-    candidates = [spec.history_start, prior_window_start]
-    candidates += [f"{y:04d}-01" for y in spec.baselines]
+    """Earliest month needed: history_start, the same months a year before the window, and the same
+    months in each baseline year (the window shifted back so that it ends in year Y)."""
+    end_year = int(end_month[:4])
+    late = [y for y in spec.baselines if y >= end_year]
+    if late:
+        raise InputError(
+            f"baselines {late} are not before the window's year {end_year}",
+            hint="A baseline is an earlier year whose same months are compared with the window",
+        )
+    shifts = [1] + [end_year - y for y in spec.baselines]
+    candidates = [spec.history_start] + [add_months(end_month, -(12 * k + spec.window_months - 1)) for k in shifts]
     return max(min(candidates), f"{PAGEVIEWS_START:%Y-%m}")
 
 
@@ -164,6 +171,8 @@ def collect_articles(
 
     for basket in spec.baskets:
         for item in basket.items:
+            if item.exclude:
+                continue  # excluded by hand with a reason: not downloaded, listed by analyze
             where = f"{basket.id}/{item.id}"
             langs = spec.langs if item.qid else (item.lang,)
             for lang in langs:
@@ -203,8 +212,11 @@ REDIRECT_MODES = ("all", "none")
 SKIPPABLE_ROLES = ("redirect", "former_title")
 
 
-def build_plan(spec: AnalysisSpec, cache: Cache, resolver: Resolver | None, redirects: str = "all") -> Plan:
-    end_month = data_as_of(spec)
+def build_plan(
+    spec: AnalysisSpec, cache: Cache, resolver: Resolver | None, redirects: str = "all", end_month: str | None = None
+) -> Plan:
+    """`end_month` overrides the window end (analyze passes the month derived from cache coverage)."""
+    end_month = end_month or data_as_of(spec)
     start, end = first_day(start_month(spec, end_month)), last_day(end_month)
     articles, missing, unresolved = collect_articles(spec, cache, resolver)
 

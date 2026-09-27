@@ -116,7 +116,11 @@ def parse_resolve_request(data: Any) -> ResolveRequest:
 BASKET_ROLES = ("target", "context", "control")
 BASKET_ID_RE = re.compile(r"[a-z][a-z0-9_]*")
 PAGEVIEWS_START = "2015-07"
-BASKET_ITEM_FORMS = '{"qid": "Q..."} | {"lang": "pl", "title": "...", "proxy_for": "Q..."(optional)}'
+BASKET_ITEM_FORMS = (
+    '{"qid": "Q..."} | {"lang": "pl", "title": "...", "proxy_for": "Q..."(optional)}; '
+    'both may add "group": "rules" and "exclude": "reason"'
+)
+GROUP_RE = re.compile(r"[a-z][a-z0-9_]*")
 
 
 @dataclass(frozen=True)
@@ -125,6 +129,8 @@ class BasketItem:
     lang: str | None = None
     title: str | None = None
     proxy_for: str | None = None
+    group: str | None = None  # metrics are also computed per group inside the basket
+    exclude: str | None = None  # manual exclusion with a reason: not fetched, listed in the appendix
 
     @property
     def id(self) -> str:
@@ -168,9 +174,16 @@ def _only_keys(raw: dict[str, Any], allowed: set[str], where: str, hint: str = "
 def parse_basket_item(raw: Any, langs: tuple[str, ...], where: str) -> BasketItem:
     if not isinstance(raw, dict):
         raise InputError(f"{where}: expected an object", hint=f"Each item is one of {BASKET_ITEM_FORMS}")
-    keys = set(raw)
+    optional = {"group", "exclude"}
+    keys = set(raw) - optional
+    group = raw.get("group")
+    if group is not None and (not isinstance(group, str) or not GROUP_RE.fullmatch(group)):
+        raise InputError(f"{where}.group must match [a-z][a-z0-9_]*, got {group!r}", hint="It is used in placeholders like {target.es.groups.rules.window.change_norm}")
+    exclude = raw.get("exclude")
+    if exclude is not None:
+        exclude = _nonempty_str(exclude, f"{where}.exclude")
     if keys == {"qid"}:
-        return BasketItem(qid=validate_qid(raw["qid"], f"{where}.qid"))
+        return BasketItem(qid=validate_qid(raw["qid"], f"{where}.qid"), group=group, exclude=exclude)
     if keys in ({"lang", "title"}, {"lang", "title", "proxy_for"}):
         lang = validate_lang(raw["lang"])
         if lang not in langs:
@@ -180,6 +193,8 @@ def parse_basket_item(raw: Any, langs: tuple[str, ...], where: str) -> BasketIte
             lang=lang,
             title=_nonempty_str(raw["title"], f"{where}.title"),
             proxy_for=validate_qid(proxy, f"{where}.proxy_for") if proxy is not None else None,
+            group=group,
+            exclude=exclude,
         )
     raise InputError(f"{where}: unexpected keys {sorted(keys)}", hint=f"Each item is exactly one of {BASKET_ITEM_FORMS}")
 

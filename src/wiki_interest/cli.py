@@ -122,15 +122,21 @@ def cmd_fetch(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
     return run_fetch(args, ctx)
 
 
+def cmd_analyze(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
+    from .analyze import cmd_analyze as run_analyze
+
+    return run_analyze(args, ctx)
+
+
 def _not_implemented(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
-    raise NotImplementedCommand(f"`{args.command}` is not implemented yet", hint="Available now: doctor, resolve, fetch")
+    raise NotImplementedCommand(f"`{args.command}` is not implemented yet", hint="Available now: doctor, resolve, fetch, analyze")
 
 
 COMMANDS: dict[str, Callable[[argparse.Namespace, Context], dict[str, Any]]] = {
     "doctor": cmd_doctor,
     "resolve": cmd_resolve,
     "fetch": cmd_fetch,
-    "analyze": _not_implemented,
+    "analyze": cmd_analyze,
     "report": _not_implemented,
 }
 
