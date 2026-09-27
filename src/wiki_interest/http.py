@@ -71,15 +71,16 @@ class HttpClient:
         session: requests.Session | None = None,
         cache: Cache | None = None,
         *,
-        sleep: Callable[[float], None] = time.sleep,
-        clock: Callable[[], float] = time.monotonic,
+        sleep: Callable[[float], None] | None = None,
+        clock: Callable[[], float] | None = None,
     ) -> None:
         self.settings = settings
         self.session = session if session is not None else requests.Session()
         self.session.headers["User-Agent"] = settings.user_agent
         self.cache = cache
-        self._sleep = sleep
-        self._clock = clock
+        # Looked up at call time so tests can patch time.sleep for CLI-level runs.
+        self._sleep = sleep or (lambda seconds: time.sleep(seconds))
+        self._clock = clock or (lambda: time.monotonic())
         self._last_start: float | None = None
         self.requests_made = 0
         self.cache_hits = 0

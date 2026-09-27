@@ -244,3 +244,15 @@ def test_resolve_input_validation(data, fragment):
 def test_title_only_input_needs_no_langs():
     req = parse_resolve_request({"items": [{"lang": "es", "title": "Reglas del ajedrez"}]})
     assert req.langs == [] and req.items[0].id == "es:Reglas del ajedrez"
+
+
+def test_wikidata_labels_pass_through_verbatim(settings):
+    """Labels are copied from Wikidata unchanged: pt label of Q3392263 is «leis do xadrez» with a space."""
+    from wiki_interest.wikidata import Wikidata
+
+    fx = load_fixture("resolve", "chess_rules_es")
+    http = HttpClient(settings, replay_session(fx), None, sleep=lambda s: None)
+    ent = Wikidata(http).entities(["Q3392263"], ["de", "es", "pt"])["Q3392263"]
+    assert ent["labels"]["pt"] == "leis do xadrez"
+    assert ent["labels"]["es"] == "Leyes del ajedrez"
+    assert ent["sitelinks"]["pt"] == "Leis do xadrez"

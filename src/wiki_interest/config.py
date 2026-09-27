@@ -29,6 +29,16 @@ DEFAULT_WORKDIR = Path("wiki-interest-out")
 # the "last full month" is not safe to request.
 DATA_LAG_DAYS = 3
 
+# First day of the Pageviews API.
+PAGEVIEWS_START = dt.date(2015, 7, 1)
+# The `automated` agent class exists from 2020-04-29 (first day partial). Before that the
+# per-article API answers with explicit zeros that are not real measurements, so earlier
+# days are never requested and are recorded as "unavailable".
+AUTOMATED_START = dt.date(2020, 5, 1)
+
+# Rough wall time per request for --dry-run estimates: min_interval plus typical latency.
+EST_SECONDS_PER_REQUEST = 0.6
+
 
 @dataclass(frozen=True)
 class Contact:

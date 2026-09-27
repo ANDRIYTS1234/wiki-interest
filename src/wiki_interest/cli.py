@@ -85,6 +85,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = add("fetch", "download daily pageviews for all baskets into the cache")
     p.add_argument("--spec", required=True, help="analysis.json")
     p.add_argument("--allow-partial", action="store_true", help="continue when some series fail; record them as missing")
+    p.add_argument("--dry-run", action="store_true", help="no requests: show how many requests are needed and the estimated time")
 
     p = add("analyze", "compute metrics.json from cached pageviews")
     p.add_argument("--spec", required=True, help="analysis.json")
@@ -109,14 +110,20 @@ def cmd_resolve(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
     return run_resolve(args, ctx)
 
 
+def cmd_fetch(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
+    from .fetch import cmd_fetch as run_fetch
+
+    return run_fetch(args, ctx)
+
+
 def _not_implemented(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
-    raise NotImplementedCommand(f"`{args.command}` is not implemented yet", hint="Available now: doctor, resolve")
+    raise NotImplementedCommand(f"`{args.command}` is not implemented yet", hint="Available now: doctor, resolve, fetch")
 
 
 COMMANDS: dict[str, Callable[[argparse.Namespace, Context], dict[str, Any]]] = {
     "doctor": cmd_doctor,
     "resolve": cmd_resolve,
-    "fetch": _not_implemented,
+    "fetch": cmd_fetch,
     "analyze": _not_implemented,
     "report": _not_implemented,
 }

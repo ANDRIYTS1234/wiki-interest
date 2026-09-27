@@ -109,3 +109,140 @@ def parse_resolve_request(data: Any) -> ResolveRequest:
     if not langs and any(i.kind != "title" for i in items):
         raise InputError('resolve input: "langs" is empty', hint='List the Wikipedia languages, e.g. "langs": ["pl", "cs"]')
     return ResolveRequest(items, langs)
+
+
+# -- analysis.json (fetch and analyze) -------------------------------------------------
+
+BASKET_ROLES = ("target", "context", "control")
+BASKET_ID_RE = re.compile(r"[a-z][a-z0-9_]*")
+PAGEVIEWS_START = "2015-07"
+BASKET_ITEM_FORMS = '{"qid": "Q..."} | {"lang": "pl", "title": "...", "proxy_for": "Q..."(optional)}'
+
+
+@dataclass(frozen=True)
+class BasketItem:
+    qid: str | None = None
+    lang: str | None = None
+    title: str | None = None
+    proxy_for: str | None = None
+
+    @property
+    def id(self) -> str:
+        return self.qid if self.qid else f"{self.lang}:{self.title}"
+
+
+@dataclass(frozen=True)
+class Basket:
+    id: str
+    role: str
+    label: str
+    items: tuple[BasketItem, ...]
+
+
+@dataclass(frozen=True)
+class AnalysisSpec:
+    question: str
+    langs: tuple[str, ...]
+    window_months: int
+    window_end: str  # "latest" or "YYYY-MM"
+    history_start: str  # "YYYY-MM"
+    baselines: tuple[int, ...]
+    baskets: tuple[Basket, ...]
+    params: dict[str, Any]
+
+
+def _month(value: Any, where: str) -> str:
+    from .dates import MONTH_RE
+
+    if not isinstance(value, str) or not MONTH_RE.fullmatch(value):
+        raise InputError(f"{where}: expected a month \"YYYY-MM\", got {value!r}")
+    return value
+
+
+def _only_keys(raw: dict[str, Any], allowed: set[str], where: str, hint: str = "") -> None:
+    unknown = set(raw) - allowed
+    if unknown:
+        raise InputError(f"{where}: unexpected keys {sorted(unknown)}", hint=hint or f"Allowed keys: {sorted(allowed)}")
+
+
+def parse_basket_item(raw: Any, langs: tuple[str, ...], where: str) -> BasketItem:
+    if not isinstance(raw, dict):
+        raise InputError(f"{where}: expected an object", hint=f"Each item is one of {BASKET_ITEM_FORMS}")
+    keys = set(raw)
+    if keys == {"qid"}:
+        return BasketItem(qid=validate_qid(raw["qid"], f"{where}.qid"))
+    if keys in ({"lang", "title"}, {"lang", "title", "proxy_for"}):
+        lang = validate_lang(raw["lang"])
+        if lang not in langs:
+            raise InputError(f"{where}: lang {lang!r} is not in \"langs\" {list(langs)}", hint="Add the language to \"langs\"")
+        proxy = raw.get("proxy_for")
+        return BasketItem(
+            lang=lang,
+            title=_nonempty_str(raw["title"], f"{where}.title"),
+            proxy_for=validate_qid(proxy, f"{where}.proxy_for") if proxy is not None else None,
+        )
+    raise InputError(f"{where}: unexpected keys {sorted(keys)}", hint=f"Each item is exactly one of {BASKET_ITEM_FORMS}")
+
+
+def parse_analysis_spec(data: Any) -> AnalysisSpec:
+    example = "See docs/SPEC.md §8 or examples/ for a complete analysis.json"
+    if not isinstance(data, dict):
+        raise InputError("analysis spec must be a JSON object", hint=example)
+    _only_keys(data, {"question", "langs", "window", "history_start", "baselines", "baskets", "params"}, "analysis spec")
+    question = _nonempty_str(data.get("question"), "question")
+
+    langs_raw = data.get("langs")
+    if not isinstance(langs_raw, list) or not langs_raw:
+        raise InputError('"langs" must be a non-empty list', hint='e.g. "langs": ["pl", "cs"]')
+    langs = tuple(dict.fromkeys(validate_lang(l) for l in langs_raw))
+
+    window = data.get("window", {})
+    if not isinstance(window, dict):
+        raise InputError('"window" must be an object', hint='{"months": 12, "end": "latest"}')
+    _only_keys(window, {"months", "end"}, "window")
+    months = window.get("months", 12)
+    if not isinstance(months, int) or isinstance(months, bool) or not 1 <= months <= 24:
+        raise InputError(f"window.months must be an integer 1..24, got {months!r}")
+    end = window.get("end", "latest")
+    if end != "latest":
+        end = _month(end, "window.end")
+
+    history_start = _month(data.get("history_start", PAGEVIEWS_START), "history_start")
+    if history_start < PAGEVIEWS_START:
+        raise InputError(f"history_start {history_start} is before {PAGEVIEWS_START}", hint="Pageviews data starts in July 2015")
+
+    baselines_raw = data.get("baselines", [])
+    if not isinstance(baselines_raw, list) or not all(
+        isinstance(y, int) and not isinstance(y, bool) and 2015 <= y <= 2100 for y in baselines_raw
+    ):
+        raise InputError('"baselines" must be a list of years, e.g. [2019, 2021]')
+
+    baskets_raw = data.get("baskets")
+    if not isinstance(baskets_raw, list) or not baskets_raw:
+        raise InputError('"baskets" must be a non-empty list', hint=example)
+    baskets: list[Basket] = []
+    for i, b in enumerate(baskets_raw):
+        where = f"baskets[{i}]"
+        if not isinstance(b, dict):
+            raise InputError(f"{where}: expected an object", hint=example)
+        _only_keys(b, {"id", "role", "label", "items"}, where)
+        bid = b.get("id")
+        if not isinstance(bid, str) or not BASKET_ID_RE.fullmatch(bid):
+            raise InputError(f"{where}.id must match [a-z][a-z0-9_]*, got {bid!r}", hint="It is used in placeholders like {target.uk.window.change}")
+        if bid in {x.id for x in baskets}:
+            raise InputError(f"{where}.id {bid!r} is used twice")
+        role = b.get("role")
+        if role not in BASKET_ROLES:
+            raise InputError(f"{where}.role must be one of {list(BASKET_ROLES)}, got {role!r}")
+        items_raw = b.get("items")
+        if not isinstance(items_raw, list) or not items_raw:
+            raise InputError(f"{where}.items must be a non-empty list", hint=f"Each item is one of {BASKET_ITEM_FORMS}")
+        items = tuple(parse_basket_item(x, langs, f"{where}.items[{j}]") for j, x in enumerate(items_raw))
+        baskets.append(Basket(bid, role, _nonempty_str(b.get("label", bid), f"{where}.label"), items))
+    if not any(b.role == "target" for b in baskets):
+        raise InputError('no basket with role "target"', hint="The topic being evaluated needs role \"target\"")
+
+    params = data.get("params", {})
+    if not isinstance(params, dict):
+        raise InputError('"params" must be an object')
+    return AnalysisSpec(question, langs, months, end, history_start, tuple(baselines_raw), tuple(baskets), params)
