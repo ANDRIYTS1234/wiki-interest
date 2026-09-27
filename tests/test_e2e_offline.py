@@ -133,5 +133,59 @@ def test_failed_rerun_keeps_the_previous_report(tmp_path, capsys, monkeypatch):
     code = main([*common, "report", "--narrative", str(tmp_path / "long.json")], session=FakeSession(no_network))
     out = json.loads(capsys.readouterr().out)
     assert code == 2 and out["error"]["code"] == "report_too_long"
-    assert "automatic flag lines" in out["error"]["hint"]
+    assert "flag lines" in out["error"]["hint"] and "automatic" in out["error"]["hint"]
     assert pdf.read_bytes() == before
+
+
+def _metrics(tmp_path, capsys, monkeypatch):
+    common, out = _analyzed(tmp_path, capsys, monkeypatch)
+    return common, json.loads(Path(out["metrics_file"]).read_text(encoding="utf-8"))
+
+
+def test_flag_places_are_basket_labels_or_all_baskets(tmp_path, capsys, monkeypatch):
+    from wiki_interest.report.flag_text import FLAG_TEXT, flag_lines
+
+    _, m = _metrics(tmp_path, capsys, monkeypatch)
+    labels = {b: i["label"] for b, i in m["basket_info"].items()}
+    lines = flag_lines(m["flags"], "uk", labels, m["spec"]["langs"])
+    joined = "\n".join(lines)
+    assert "target/" not in joined and "window" not in joined and "baseline:" not in joined  # no technical paths
+    # example B has one basket: a flag on it reads "усі кошики", a pl-only flag adds the language
+    missing = next(l for l in lines if l.startswith(FLAG_TEXT["ARTICLE_MISSING"]["uk"]))
+    assert missing.endswith("(усі кошики — pl)")
+    # two baskets, flag on one: its label, not its id
+    two = {"target": "Астрономія", "control": "Інші науки"}
+    flags = [{"code": "LOW_VOLUME", "basket": "control", "lang": "uk"}]
+    assert flag_lines(flags, "uk", two, ["uk"]) == [f"{FLAG_TEXT['LOW_VOLUME']['uk']} (Інші науки)"]
+
+
+def test_badges_show_basket_labels(tmp_path, capsys, monkeypatch):
+    from reportlab.platypus import Table
+
+    from wiki_interest.report.pdf import _confidence_badge, _styles
+
+    _, m = _metrics(tmp_path, capsys, monkeypatch)
+    badge = _confidence_badge(m["baskets"], m["spec"]["langs"], "uk", _styles("uk"), m["basket_info"])
+    texts = [cell._cellvalues[0][0].getPlainText() for row in badge._cellvalues for cell in row if isinstance(cell, Table)]
+    label = m["basket_info"]["target"]["label"]
+    assert texts and all(t.startswith(label) for t in texts) and not any(t.startswith("target") for t in texts)
+
+
+def test_caveat_repeating_an_automatic_line_is_dropped_and_reported(tmp_path, capsys, monkeypatch):
+    common, _ = _analyzed(tmp_path, capsys, monkeypatch)
+    n = json.loads((EXAMPLE / "narrative.json").read_text(encoding="utf-8"))
+    own = n["caveats"][0]
+    n["caveats"] = ["Cannot compare Polish and Czech data directly.", own]
+    (tmp_path / "n.json").write_text(json.dumps(n, ensure_ascii=False), encoding="utf-8")
+    out = run(capsys, [*common, "report", "--narrative", str(tmp_path / "n.json")], FakeSession(no_network))
+    assert out["caveats_dropped"] == [{"caveat": "Cannot compare Polish and Czech data directly.", "repeats": "NOT_COMPARABLE"}]
+
+
+def test_caveats_block_at_most_a_quarter_page(tmp_path, capsys, monkeypatch):
+    common, _ = _analyzed(tmp_path, capsys, monkeypatch)
+    n = json.loads((EXAMPLE / "narrative.json").read_text(encoding="utf-8"))
+    n["caveats"] = [("Власне застереження агента без чисел, яке дуже довго пояснює одне й те саме. " * 4)[:250]] * 6
+    (tmp_path / "n.json").write_text(json.dumps(n, ensure_ascii=False), encoding="utf-8")
+    code = main([*common, "report", "--narrative", str(tmp_path / "n.json")], session=FakeSession(no_network))
+    out = json.loads(capsys.readouterr().out)
+    assert code == 2 and out["error"]["code"] == "report_too_long" and "quarter" in out["error"]["message"]

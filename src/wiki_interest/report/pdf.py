@@ -32,6 +32,7 @@ from .flag_text import flag_lines, not_comparable_text
 from .fmt import fmt_ci, fmt_int, fmt_pct, fmt_x
 
 MARGIN = 14 * mm
+CAVEATS_MAX_HEIGHT = A4[1] / 4
 CONF_COLORS = {"high": "#2fa84f", "medium": "#e0a52b", "low": "#c94f4f"}
 
 LABELS = {
@@ -91,16 +92,22 @@ def _styles(report_lang: str, layout: str = "normal") -> dict[str, ParagraphStyl
     }
 
 
-def _confidence_badge(baskets: dict[str, Any], langs: list[str], report_lang: str, styles: dict[str, ParagraphStyle]) -> Table:
+def _confidence_badge(
+    baskets: dict[str, Any], langs: list[str], report_lang: str, styles: dict[str, ParagraphStyle], basket_info: dict[str, Any] | None = None
+) -> Table:
     L = LABELS[report_lang]
-    target_id = next((bid for bid, b in baskets.items()), None)
+    info = basket_info or {}
+    # Badges are about the topic: target baskets only (all baskets if none is a target), by label.
+    shown = [b for b in baskets if info.get(b, {}).get("role") == "target"] or list(baskets)
     chips = []
-    for bid, per_lang in baskets.items():
+    for bid in shown:
+        per_lang = baskets[bid]
         for lang in langs:
             conf = per_lang[lang]["confidence"]["window"]
             if conf.get("direction") is None:
                 continue
-            text = f"{bid}/{lang}: {L['direction']} {conf['direction']}, {L['magnitude']} {conf['magnitude']}"
+            name = info.get(bid, {}).get("label", bid) + (f" ({lang})" if len(langs) > 1 else "")
+            text = f"{escape(name)}: {L['direction']} {conf['direction']}, {L['magnitude']} {conf['magnitude']}"
             color = CONF_COLORS.get(conf["direction"], "#888888")
             chips.append(
                 Table(
@@ -113,8 +120,11 @@ def _confidence_badge(baskets: dict[str, Any], langs: list[str], report_lang: st
             )
     if not chips:
         return Paragraph("", styles["body"])
-    row = Table([chips], style=TableStyle([("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 4)]))
-    return row
+    rows = [chips[i : i + 2] for i in range(0, len(chips), 2)]
+    if len(rows) > 1 and len(rows[-1]) == 1:
+        rows[-1].append("")
+    return Table(rows, hAlign="LEFT", style=TableStyle([("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+                                                         ("BOTTOMPADDING", (0, 0), (-1, -1), 2)]))
 
 
 def _number_table(metrics: dict[str, Any], report_lang: str, styles: dict[str, ParagraphStyle]) -> Table:
@@ -167,7 +177,8 @@ def _bullets(items: list[str], style: ParagraphStyle) -> ListFlowable:
 
 def automatic_caveats(metrics: dict[str, Any], report_lang: str) -> list[str]:
     """Plain-language lines for all quality flags and all window comparisons that are not possible."""
-    lines = flag_lines(metrics.get("flags", []), report_lang)
+    labels = {bid: info["label"] for bid, info in metrics.get("basket_info", {}).items()}
+    lines = flag_lines(metrics.get("flags", []), report_lang, labels, metrics.get("spec", {}).get("langs"))
     for entry in metrics.get("compare", {}).values():
         for r in entry.values():
             w = r.get("window", {})
@@ -181,7 +192,7 @@ def build_story(metrics: dict[str, Any], narrative: dict[str, Any], chart_path: 
     styles = _styles(report_lang, layout)
     story: list = []
     story.append(Paragraph(narrative["title"], styles["title"]))
-    story.append(_confidence_badge(metrics["baskets"], metrics["spec"]["langs"], report_lang, styles))
+    story.append(_confidence_badge(metrics["baskets"], metrics["spec"]["langs"], report_lang, styles, metrics.get("basket_info")))
     story.append(Spacer(1, 4))
     story.append(Paragraph(narrative["answer"], styles["answer"]))
 
@@ -208,7 +219,9 @@ def build_story(metrics: dict[str, Any], narrative: dict[str, Any], chart_path: 
     caveats = auto + list(narrative["caveats"])
     if caveats:
         story.append(Paragraph(L["caveats"], styles["h2"]))
-        story.append(_bullets(caveats, styles["small"]))
+        block = _bullets(caveats, styles["small"])
+        block._wi_caveats = (caveats, styles["small"])  # measured in render_pdf: at most a quarter page
+        story.append(block)
 
     source = (
         f"{L['source']}: Wikimedia Pageviews API. {L['data_as_of']} {metrics['data_as_of']}. "
@@ -237,12 +250,30 @@ def render_pdf(metrics: dict[str, Any], narrative: dict[str, Any], chart_path: P
     """Write the one-page PDF; returns the layout used. Built in memory and written only when it
     fits, so a failed rerun never deletes or half-overwrites the previous report at the same path."""
     fonts.register_reportlab()
+    caveats_too_long = False
     for layout in LAYOUTS:
-        data, overflowed = _build(build_story(metrics, narrative, chart_path, report_lang, layout), narrative["title"])
+        story = build_story(metrics, narrative, chart_path, report_lang, layout)
+        # The caveats block may take at most a quarter of the page. Automatic lines are mandatory,
+        # so only the agent's own caveats can make it too long.
+        block = next((f for f in story if getattr(f, "_wi_caveats", None)), None)
+        if block is not None and narrative["caveats"]:
+            texts, style = block._wi_caveats
+            width = A4[0] - 2 * MARGIN - 20  # minus the bullet indent
+            height = sum(Paragraph(t, style).wrap(width, A4[1])[1] + 2 for t in texts)
+            if height > CAVEATS_MAX_HEIGHT:
+                caveats_too_long = True
+                continue
+        data, overflowed = _build(story, narrative["title"])
         if not overflowed:
             out_path.write_bytes(data)
             return layout
     n_auto = len(automatic_caveats(metrics, report_lang))
+    if caveats_too_long:
+        raise ReportTooLongError(
+            "the caveats block would take more than a quarter of the page",
+            hint=f"Shorten or drop your own caveats: the {n_auto} flag lines are printed automatically; "
+            "keep only what they do not cover.",
+        )
     raise ReportTooLongError(
         "the report does not fit on one A4 page even in the compact layout",
         hint=f"Shorten narrative.json: fewer/shorter findings, a shorter answer or recommendation, and drop caveats "

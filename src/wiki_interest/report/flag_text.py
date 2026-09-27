@@ -80,27 +80,67 @@ SEVERITY_ORDER = {"high": 0, "warning": 1, "info": 2}
 assert set(FLAG_TEXT) == set(SEVERITY), "every flag code needs report wording"
 
 
-def _where(f: dict[str, Any]) -> str:
-    parts = [f.get("basket"), f.get("lang")]
-    base = "/".join(p for p in parts if p)
-    return f"{base}/{f['group']}" if base and f.get("group") else base
+ALL_BASKETS = {"en": "all baskets", "uk": "усі кошики"}
 
 
-def flag_lines(flags: list[dict[str, Any]], lang: str) -> list[str]:
-    """One line per flag code (most severe first), with the basket/language places it applies to."""
-    by_code: dict[str, set[str]] = {}
+def flag_lines(
+    flags: list[dict[str, Any]], lang: str, basket_labels: dict[str, str] | None = None, langs: list[str] | None = None
+) -> list[str]:
+    """One line per flag code (most severe first) and where it applies, in reader terms: "all
+    baskets" or the baskets' labels (never ids or basket/lang/scope paths), plus the languages only
+    when the flag does not hold for all of them."""
+    basket_labels = basket_labels or {}
+    langs = langs or []
+    places: dict[str, set[tuple[str | None, str | None]]] = {}
     for f in flags:
-        by_code.setdefault(f["code"], set())
-        w = _where(f)
-        if w:
-            by_code[f["code"]].add(w)
-    codes = sorted(by_code, key=lambda c: (SEVERITY_ORDER.get(SEVERITY[c], 9), c))
+        places.setdefault(f["code"], set()).add((f.get("basket"), f.get("lang")))
+    codes = sorted(places, key=lambda c: (SEVERITY_ORDER.get(SEVERITY[c], 9), c))
     out = []
     for code in codes:
-        where = sorted(by_code[code])
-        suffix = f" ({', '.join(where)})" if where else ""
+        baskets = {b for b, _ in places[code] if b}
+        flag_langs = {l for _, l in places[code] if l}
+        parts = []
+        if baskets:
+            if basket_labels and baskets >= set(basket_labels):
+                parts.append(ALL_BASKETS[lang])
+            else:
+                parts.append(", ".join(sorted(basket_labels.get(b, b) for b in baskets)))
+        if flag_langs and len(langs) > 1 and flag_langs != set(langs):
+            parts.append(", ".join(sorted(flag_langs)))
+        suffix = f" ({' — '.join(parts)})" if parts else ""
         out.append(f"{FLAG_TEXT[code][lang]}{suffix}")
     return out
+
+
+# Stems that mark an agent caveat as repeating an automatic line (en/uk/pl/cs). A match drops the
+# agent's caveat from the PDF and is reported in report's stdout, never silently.
+DUPLICATE_STEMS: dict[str, tuple[str, ...]] = {
+    "NOT_COMPARABLE": ("compar", "порівн", "porówn", "porown", "srovn"),
+    "PANEL_SMALL": ("panel", "панел", "few articles", "мало статей", "one article", "single article", "одна стаття", "одній статті"),
+    "BOT_RECLASSIFICATION_2025": ("reclassif", "перекласиф", "przeklasyf"),
+    "PRE_2020_BOT_CLASS": ("before may 2020", "до травня 2020"),
+    "ARTICLE_MISSING": ("no article", "missing article", "немає статті", "статті немає", "відсутн", "brak artyku"),
+    "PROXY_USED": ("proxy", "stand-in", "замінник", "substitut", "zamiennik"),
+    "LOW_VOLUME": ("low volume", "few views", "мало переглядів", "низькі обсяги", "малі обсяги"),
+    "NEW_ARTICLE": ("created in", "new article", "створено", "нова стаття"),
+    "BOT_SUSPECT": ("automated", "bot traffic", "ботів", "бот-трафік", "боти"),
+    "ANOMALY_MONTHS": ("anomal", "аномал"),
+    "SPIKE_DRIVEN": ("spike", "сплеск"),
+    "REDIRECTS_SKIPPED": ("redirect", "редирект"),
+    "PARTIAL_DATA": ("partial data", "incomplete data", "неповн"),
+    "BASKET_SENSITIVE": ("sensitive to", "залежить від складу"),
+    "CONCENTRATION_DIVERGENCE": ("concentrat", "великих статей"),
+    "UNUSED_SERIES": ("unused", "не використ"),
+}
+
+
+def duplicate_of(caveat: str, printed_codes: set[str]) -> str | None:
+    """The automatic line (flag code or NOT_COMPARABLE) an agent caveat repeats, if any."""
+    text = caveat.lower()
+    for code in sorted(printed_codes):
+        if any(stem in text for stem in DUPLICATE_STEMS.get(code, ())):
+            return code
+    return None
 
 
 def not_comparable_text(entry: dict[str, Any], lang: str) -> str:

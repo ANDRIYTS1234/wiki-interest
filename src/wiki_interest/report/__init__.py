@@ -11,6 +11,7 @@ from ..errors import InputError
 from ..schemas import load_json_file
 from .appendix import build_appendix
 from .charts import render_chart
+from .flag_text import duplicate_of
 from .narrative import render_narrative, validate_narrative
 from .pdf import render_pdf
 
@@ -30,6 +31,19 @@ def cmd_report(args: Any, ctx: Any) -> dict[str, Any]:
     narrative_raw = load_json_file(args.narrative, "narrative.json")
     narrative = validate_narrative(narrative_raw)
     rendered = render_narrative(narrative, metrics, args.report_lang)
+    # An agent caveat that repeats an automatically printed line is not printed twice (a Haiku run
+    # added "Cannot compare Polish-Czech" next to the automatic line); stdout says what was dropped.
+    printed = {f["code"] for f in metrics.get("flags", [])}
+    if any(r.get("window", {}).get("comparable") is False for e in metrics.get("compare", {}).values() for r in e.values()):
+        printed.add("NOT_COMPARABLE")
+    kept, dropped = [], []
+    for raw, text in zip(narrative["caveats"], rendered["caveats"]):
+        repeats = duplicate_of(raw, printed)
+        if repeats:
+            dropped.append({"caveat": raw, "repeats": repeats})
+        else:
+            kept.append(text)
+    rendered["caveats"] = kept
 
     workdir.mkdir(parents=True, exist_ok=True)
     # One stable path by default: a follow-up question updates the same report, never a second
@@ -53,4 +67,5 @@ def cmd_report(args: Any, ctx: Any) -> dict[str, Any]:
         "layout": layout,
         "chart": str(chart_path),
         "appendix": str(appendix_path),
+        "caveats_dropped": dropped,
     }
