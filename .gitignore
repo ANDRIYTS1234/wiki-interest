@@ -9,3 +9,4 @@ dist/
 wiki-interest-out/
 demo/
 evals/runs/**/.wiki-interest-cache/
+demo-cache/

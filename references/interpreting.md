@@ -16,25 +16,29 @@
 - Always give the reasons in one short clause: `<basket>.<lang>.confidence.window.reasons[]` (or `.baselines.<year>`) in metrics.json.
 - Caps: `LOW_VOLUME`, `PANEL_SMALL`, `REDIRECTS_SKIPPED` → direction at most medium; `BOT_RECLASSIFICATION_2025`, `PRE_2020_BOT_CLASS` → magnitude at most medium for that comparison. With fewer than 3 panel articles there is no interval, so direction is at most medium.
 
-## Flags → what to tell the user
+## Flags → what the reader sees and what you add
 
-| Flag | Say |
-|---|---|
-| LOW_VOLUME | Few views per month; small changes look large. Treat as a weak signal. |
-| SPIKE_DRIVEN | The change depends on one-off spikes (news, a viral post). Give the number without spikes too. |
-| ANOMALY_MONTHS | Some months are abnormal (often unfiltered bots). Give the result without them. |
-| BASKET_SENSITIVE | The result depends on which articles are included. Treat the magnitude as uncertain. |
-| CONCENTRATION_DIVERGENCE | A few big articles move differently from the rest; name them. |
-| BOT_SUSPECT | Part of the traffic looks automated. |
-| ARTICLE_MISSING | No article in that language: a gap in Wikipedia, not proof of no demand. |
-| PROXY_USED | A related but different article stands in; do not compare it directly with other languages. |
-| NEW_ARTICLE | Article created during the period; early growth may just be the article being new. |
-| PRE_2020_BOT_CLASS | Before May 2020 Wikimedia did not separate bots; the old baseline may be inflated. |
-| BOT_RECLASSIFICATION_2025 | Wikimedia reclassified bot traffic in Mar–Aug 2025; year-over-year changes across that period may be overstated. |
-| PANEL_SMALL | Fewer than 5 comparable articles; weak basis. |
-| REDIRECTS_SKIPPED | Quick pass without redirects; rerun fully before a final answer. |
-| PARTIAL_DATA | Some series failed to download; name what is missing. |
-| UNUSED_SERIES | Something was downloaded but not used; explain or remove it. |
+`report` prints every flag in the PDF's caveats block automatically, in the reader's language, plus one line for
+every comparison `analyze` marked `DO NOT COMPARE DIRECTLY`. You do not need to repeat them in `caveats`; use
+`caveats` only for what the flags do not cover. In the chat answer, mention the flags that change the conclusion.
+
+| Flag | Printed in the PDF | What you add |
+|---|---|---|
+| LOW_VOLUME | Few views per month; small changes look large. Treat as a weak signal. | Call the result a weak signal. |
+| SPIKE_DRIVEN | The change depends on one-off spikes (news, a viral post); the appendix shows the result without them. | Give the number without spikes too (`variants.no_spikes`). |
+| ANOMALY_MONTHS | Some months are abnormal (often unfiltered bots); the appendix shows the result without them. | Give the result without them (`variants.no_anomalies`). |
+| BASKET_SENSITIVE | The result depends on which articles are included; treat the magnitude as uncertain. | Do not state the magnitude as firm. |
+| CONCENTRATION_DIVERGENCE | A few big articles move differently from the rest of the topic. | Name the articles (the flag's detail lists them). |
+| BOT_SUSPECT | Part of the traffic looks automated. | Mention it when the change is large. |
+| ARTICLE_MISSING | No article in that language: a gap in Wikipedia, not proof of no demand. | Say it is a gap in Wikipedia, not missing demand. |
+| PROXY_USED | A related but different article stands in; it is not compared directly with other languages. | Never compare the stand-in directly with another language. |
+| NEW_ARTICLE | An article was created during the period; early growth may just be the article being new. | Do not call early growth a trend. |
+| PRE_2020_BOT_CLASS | Before May 2020 Wikimedia did not separate bots; the old baseline may be inflated. | Prefer a baseline from 2021 or later for the headline. |
+| BOT_RECLASSIFICATION_2025 | Wikimedia reclassified bot traffic in Mar–Aug 2025; year-over-year changes across that period may be overstated. | Say year-over-year declines across 2025 may be overstated. |
+| PANEL_SMALL | Few comparable articles in the panel; a weak basis for a conclusion. | Suggest adding comparable articles to the basket. |
+| REDIRECTS_SKIPPED | Quick pass without redirects; the result is preliminary. | Rerun fetch without `--redirects none` before a final answer. |
+| PARTIAL_DATA | Some series failed to download; the result rests on incomplete data. | Name what is missing. |
+| UNUSED_SERIES | Some downloaded series are not used in any basket. | Explain it or remove it from the spec. |
 
 ## narrative.json
 

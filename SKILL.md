@@ -34,20 +34,20 @@ Every command prints one JSON object to stdout. Non-zero exit = stop and read `e
 3. **Build the basket.** One article is never enough to judge a topic. Propose 5–20 related Wikidata items (core article + subtopics), grouped if useful (e.g. `rules`, `players`). See `references/basket-building.md`. Resolve them, show the user the list with statuses, and confirm before fetching.
 4. **Write `analysis.json`** (format in `references/basket-building.md`): baskets with roles `target` / `context` / `control`, `langs`, `window`, `baselines`.
 5. **Fetch.** `$W fetch --spec analysis.json --dry-run` first. If `estimated_minutes` > 2, tell the user how long it will take. Then `$W fetch --spec analysis.json`. For a very large basket you may first run `--redirects none` (flag `REDIRECTS_SKIPPED`), but rerun without it before the final answer. Exit 5 = some series failed: report them; `--allow-partial` only if the user accepts `PARTIAL_DATA`.
-6. **Analyze.** `$W analyze --spec analysis.json`. Read the stdout: `summary[]` (per basket × language: direction, `index_norm` with interval, `share_change`, direction/magnitude confidence, flag codes), `compare[]`, `placeholders`. Open `metrics_file` only for details (flag details, reasons, panels, exclusions).
+6. **Analyze.** `$W analyze --spec analysis.json`. Read the stdout: `summary[]` (per basket × language: direction, `index_norm` with interval, `share_change`, direction/magnitude confidence, flag codes), `compare[]`, `placeholders`, and `attention[]` first: a line `DO NOT COMPARE DIRECTLY` means those two languages (or baskets) have no comparable articles — never compare them in the answer or report, say why. Open `metrics_file` only for details (flag details, reasons, panels, exclusions).
 7. **Write `narrative.json`** — numbers ONLY as placeholders copied from `placeholders` in the analyze output, e.g. `{target.pl.window.change_norm:pct}` or `{target.pl.window.index_norm:x}`. Any other digit (except years) is rejected. See `references/interpreting.md`.
-8. **Report.** `$W report --metrics <metrics_file> --narrative narrative.json --out out/report.pdf --report-lang uk` (`en` for English). If it fails because text does not fit, shorten the text — do not drop caveats.
+8. **Report.** `$W report --narrative narrative.json --report-lang uk` (`en` for English). It reads the workdir's `metrics.json` and writes `wiki-interest-out/report.pdf`; if the user wants another place, pass the same `--out` every time. Every flag and every "do not compare" is printed in the PDF automatically — put in `caveats` only what they do not cover. If the text does not fit, shorten findings or your own caveats.
 9. **Answer in chat** in the user's language: the direct answer, confidence and why, what would change the conclusion, and the next cheap step to validate real demand. Link the PDF and `appendix.md`.
 
 ## Rules (each one fixes a real failure seen without this skill)
 
 - **Check the user's premise.** If they say "interest exploded", test it; do not echo it.
 - **Missing article ≠ no demand.** It is a gap in that Wikipedia, and must be stated as such.
-- **Every flag in the analyze output must appear** in the conclusion or caveats (`references/interpreting.md` has wording).
+- **Flags:** the PDF lists all of them; in the chat answer mention those that change the conclusion (`references/interpreting.md` has wording).
 - **Label hypotheses.** Causes (AI search, a TV series, school terms) are hypotheses unless you have a source. Write "[hypothesis]" or give the source.
 - **Never compare raw totals of different-sized baskets or language editions.** Use `index_norm`, `share_change` and `compare.*` values.
 - **Pageviews measure attention, not willingness to pay.** Always end with a direct demand test (search volume, landing page, survey).
-- **Follow-up requests** ("add Latvian", "look at 3 years"): edit `analysis.json` and rerun fetch → analyze → report. The cache downloads only what is new. Explain what changed versus the previous answer.
+- **Follow-up requests** ("add Latvian", "look at 3 years"): edit `analysis.json` and rerun fetch → analyze → report. The cache downloads only what is new, and the report overwrites the same PDF (`"replaced": true`) — never create a second report next to it. Explain what changed versus the previous answer.
 - If a command fails with rate limit (exit 4) or network (exit 3), report it; never fill gaps with guesses.
 
 ## References (open only when needed)

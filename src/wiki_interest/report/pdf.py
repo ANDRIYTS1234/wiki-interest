@@ -4,8 +4,10 @@ content does not fit, this raises instead of silently spilling onto a second pag
 
 from __future__ import annotations
 
+import io
 from pathlib import Path
 from typing import Any
+from xml.sax.saxutils import escape
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -24,7 +26,9 @@ from reportlab.platypus import (
 )
 
 from ..errors import WikiInterestError
+
 from . import fonts
+from .flag_text import flag_lines, not_comparable_text
 from .fmt import fmt_ci, fmt_int, fmt_pct, fmt_x
 
 MARGIN = 14 * mm
@@ -65,16 +69,25 @@ class ReportTooLongError(WikiInterestError):
     code = "report_too_long"
 
 
-def _styles(report_lang: str) -> dict[str, ParagraphStyle]:
+# Layouts tried in order. The automatic caveats (every flag, every "do not compare") are
+# mandatory, so a report with many flags falls back to the compact layout before failing.
+LAYOUTS = {
+    "normal": {"title": 20, "answer": 13, "h2": 12.5, "body": 10.5, "small": 9, "table": 9.5, "chart_h": 92, "space": 10},
+    "compact": {"title": 16, "answer": 11, "h2": 10.5, "body": 9, "small": 7.8, "table": 8.5, "chart_h": 64, "space": 5},
+}
+
+
+def _styles(report_lang: str, layout: str = "normal") -> dict[str, ParagraphStyle]:
     base_font = fonts.RL_REGULAR
     bold_font = fonts.RL_BOLD
+    z = LAYOUTS[layout]
     return {
-        "title": ParagraphStyle("title", fontName=bold_font, fontSize=20, leading=24, spaceAfter=6),
-        "answer": ParagraphStyle("answer", fontName=base_font, fontSize=13, leading=17, spaceAfter=8),
-        "h2": ParagraphStyle("h2", fontName=bold_font, fontSize=12.5, leading=15, spaceBefore=10, spaceAfter=4),
-        "body": ParagraphStyle("body", fontName=base_font, fontSize=10.5, leading=14),
-        "small": ParagraphStyle("small", fontName=base_font, fontSize=9, leading=12, textColor=colors.HexColor("#555555")),
-        "table": ParagraphStyle("table", fontName=base_font, fontSize=9.5, leading=12),
+        "title": ParagraphStyle("title", fontName=bold_font, fontSize=z["title"], leading=z["title"] * 1.2, spaceAfter=6),
+        "answer": ParagraphStyle("answer", fontName=base_font, fontSize=z["answer"], leading=z["answer"] * 1.3, spaceAfter=z["space"] - 2),
+        "h2": ParagraphStyle("h2", fontName=bold_font, fontSize=z["h2"], leading=z["h2"] * 1.2, spaceBefore=z["space"], spaceAfter=3),
+        "body": ParagraphStyle("body", fontName=base_font, fontSize=z["body"], leading=z["body"] * 1.33),
+        "small": ParagraphStyle("small", fontName=base_font, fontSize=z["small"], leading=z["small"] * 1.3, textColor=colors.HexColor("#555555")),
+        "table": ParagraphStyle("table", fontName=base_font, fontSize=z["table"], leading=z["table"] * 1.26),
     }
 
 
@@ -152,9 +165,20 @@ def _bullets(items: list[str], style: ParagraphStyle) -> ListFlowable:
     )
 
 
-def build_story(metrics: dict[str, Any], narrative: dict[str, Any], chart_path: Path, report_lang: str) -> list:
+def automatic_caveats(metrics: dict[str, Any], report_lang: str) -> list[str]:
+    """Plain-language lines for all quality flags and all window comparisons that are not possible."""
+    lines = flag_lines(metrics.get("flags", []), report_lang)
+    for entry in metrics.get("compare", {}).values():
+        for r in entry.values():
+            w = r.get("window", {})
+            if w and w.get("comparable") is False:
+                lines.append(not_comparable_text(w, report_lang))
+    return [escape(line) for line in lines]
+
+
+def build_story(metrics: dict[str, Any], narrative: dict[str, Any], chart_path: Path, report_lang: str, layout: str = "normal") -> list:
     L = LABELS[report_lang]
-    styles = _styles(report_lang)
+    styles = _styles(report_lang, layout)
     story: list = []
     story.append(Paragraph(narrative["title"], styles["title"]))
     story.append(_confidence_badge(metrics["baskets"], metrics["spec"]["langs"], report_lang, styles))
@@ -162,7 +186,7 @@ def build_story(metrics: dict[str, Any], narrative: dict[str, Any], chart_path: 
     story.append(Paragraph(narrative["answer"], styles["answer"]))
 
     img = Image(str(chart_path))
-    max_w, max_h = 182 * mm, 92 * mm
+    max_w, max_h = 182 * mm, LAYOUTS[layout]["chart_h"] * mm
     scale = min(max_w / img.imageWidth, max_h / img.imageHeight)
     img.drawWidth, img.drawHeight = img.imageWidth * scale, img.imageHeight * scale
     story.append(img)
@@ -178,9 +202,13 @@ def build_story(metrics: dict[str, Any], narrative: dict[str, Any], chart_path: 
     story.append(Paragraph(L["recommendation"], styles["h2"]))
     story.append(Paragraph(narrative["recommendation"], styles["body"]))
 
-    if narrative["caveats"]:
+    # Every flag and every "do not compare directly" is printed here whatever the narrative says
+    # (a Haiku run left flags out of the PDF), then the agent's own caveats.
+    auto = automatic_caveats(metrics, report_lang)
+    caveats = auto + list(narrative["caveats"])
+    if caveats:
         story.append(Paragraph(L["caveats"], styles["h2"]))
-        story.append(_bullets(narrative["caveats"], styles["small"]))
+        story.append(_bullets(caveats, styles["small"]))
 
     source = (
         f"{L['source']}: Wikimedia Pageviews API. {L['data_as_of']} {metrics['data_as_of']}. "
@@ -191,27 +219,32 @@ def build_story(metrics: dict[str, Any], narrative: dict[str, Any], chart_path: 
     return story
 
 
-def render_pdf(metrics: dict[str, Any], narrative: dict[str, Any], chart_path: Path, out_path: Path, report_lang: str) -> None:
-    fonts.register_reportlab()
-    story = build_story(metrics, narrative, chart_path, report_lang)
-    doc = SimpleDocTemplate(
-        str(out_path),
-        pagesize=A4,
-        leftMargin=MARGIN, rightMargin=MARGIN, topMargin=MARGIN, bottomMargin=MARGIN,
-        title=narrative["title"],
-    )
+def _build(story: list, title: str) -> tuple[bytes, bool]:
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=MARGIN, rightMargin=MARGIN, topMargin=MARGIN, bottomMargin=MARGIN, title=title)
     overflowed = {"flag": False}
 
     def _mark_overflow(canvas, doc_):
         overflowed["flag"] = True
 
-    # Wrapped in KeepTogether-less flow: SimpleDocTemplate paginates automatically if content
-    # overflows one frame. onLaterPages only fires for page 2+, which is exactly our overflow signal.
+    # SimpleDocTemplate paginates automatically; onLaterPages fires only for page 2+, which is
+    # exactly the overflow signal.
     doc.build(story, onLaterPages=_mark_overflow)
-    if overflowed["flag"]:
-        out_path.unlink(missing_ok=True)
-        raise ReportTooLongError(
-            "the report does not fit on one A4 page",
-            hint="Shorten narrative.json: fewer/shorter findings or caveats, a shorter answer or recommendation "
-            "(SPEC requires exactly one page; text is never silently cut)",
-        )
+    return buf.getvalue(), overflowed["flag"]
+
+
+def render_pdf(metrics: dict[str, Any], narrative: dict[str, Any], chart_path: Path, out_path: Path, report_lang: str) -> str:
+    """Write the one-page PDF; returns the layout used. Built in memory and written only when it
+    fits, so a failed rerun never deletes or half-overwrites the previous report at the same path."""
+    fonts.register_reportlab()
+    for layout in LAYOUTS:
+        data, overflowed = _build(build_story(metrics, narrative, chart_path, report_lang, layout), narrative["title"])
+        if not overflowed:
+            out_path.write_bytes(data)
+            return layout
+    n_auto = len(automatic_caveats(metrics, report_lang))
+    raise ReportTooLongError(
+        "the report does not fit on one A4 page even in the compact layout",
+        hint=f"Shorten narrative.json: fewer/shorter findings, a shorter answer or recommendation, and drop caveats "
+        f"that repeat the {n_auto} automatic flag lines (those are always printed). Text is never silently cut.",
+    )

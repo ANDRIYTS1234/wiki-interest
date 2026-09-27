@@ -17,6 +17,14 @@ def test_flag_table_matches_code():
     assert documented == set(SEVERITY)
 
 
+def test_flag_wording_in_docs_is_what_the_pdf_prints():
+    from wiki_interest.report.flag_text import FLAG_TEXT
+
+    doc = (ROOT / "references" / "interpreting.md").read_text(encoding="utf-8")
+    rows = dict(re.findall(r"^\| ([A-Z][A-Z0-9_]+) \| (.+?) \|", doc, flags=re.M))
+    assert rows == {code: text["en"] for code, text in FLAG_TEXT.items()}
+
+
 def test_doc_placeholders_use_valid_formats():
     for path in DOCS:
         for ph_path, fmt in re.findall(r"\{([a-z_]+(?:\.[A-Za-z0-9_]+)+):([a-z]+)\}", path.read_text(encoding="utf-8")):

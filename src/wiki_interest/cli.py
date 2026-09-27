@@ -110,9 +110,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--spec", required=True, help="analysis.json")
 
     p = add("report", "render the one-page PDF, charts and appendix")
-    p.add_argument("--metrics", required=True)
+    p.add_argument("--metrics", help="metrics.json (default: <workdir>/metrics.json, where analyze writes it)")
     p.add_argument("--narrative", required=True)
-    p.add_argument("--out", required=True)
+    p.add_argument(
+        "--out",
+        help="PDF path (default: <workdir>/report.pdf; a follow-up run overwrites the same file instead of adding one)",
+    )
     p.add_argument("--report-lang", choices=("uk", "en"), default="uk")
     return parser
 

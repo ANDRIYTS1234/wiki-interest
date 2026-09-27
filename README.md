@@ -76,7 +76,7 @@ files, never as shell arguments.
 | `resolve --input resolve.json` | queries or QIDs, languages | finds the article in each language; `ok` / `missing` / `disambiguation` / `redirect_resolved`, redirects, former titles; never picks a substitute |
 | `fetch --spec analysis.json [--dry-run]` | baskets | daily views (user, automated, desktop) + edition totals into the SQLite cache; only missing ranges are requested |
 | `analyze --spec analysis.json` | cached views | `metrics.json`: basket index (geometric mean, bootstrap CI), share change, leave-one-out / top-3 / median / spikes / anomalous months, alternative baselines, language comparisons, flags, separate direction and magnitude confidence |
-| `report --metrics … --narrative … --out report.pdf` | metrics + agent text | one-page PDF (fails rather than truncates), chart PNG, `appendix.md` with methodology and all flags |
+| `report --narrative narrative.json [--metrics …] [--out …]` | metrics + agent text | one-page PDF at a stable path (`<workdir>/report.pdf`; a follow-up overwrites it), every quality flag and "do not compare" printed automatically, fails rather than truncates; chart PNG, `appendix.md` with methodology and all flags |
 | `doctor` | — | environment check |
 
 Exit codes: 0 ok, 2 invalid input, 3 network, 4 rate limit, 5 incomplete data, 1 other.
@@ -87,9 +87,9 @@ Exit codes: 0 ok, 2 invalid input, 3 network, 4 rate limit, 5 incomplete data, 1
 the spec, the agent's narrative and the resulting report in `out/`:
 
 ```bash
-uv run wiki-interest --cache-dir examples/B-fasting/cache --workdir demo analyze --spec examples/B-fasting/analysis.json
-uv run wiki-interest --cache-dir examples/B-fasting/cache --workdir demo report \
-  --metrics demo/metrics.json --narrative examples/B-fasting/narrative.json --out demo/report.pdf
+cp -r examples/B-fasting/cache demo-cache   # work on a copy: opening a cache writes to it
+uv run wiki-interest --cache-dir demo-cache --workdir demo analyze --spec examples/B-fasting/analysis.json
+uv run wiki-interest --cache-dir demo-cache --workdir demo report --narrative examples/B-fasting/narrative.json
 ```
 
 `examples/A-astronomy/` is a larger spec (20 + 10 Wikidata items) that needs a live fetch.

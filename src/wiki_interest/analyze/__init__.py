@@ -225,8 +225,16 @@ def run_analysis(spec: AnalysisSpec, cache: Cache, workdir: Path | None = None) 
     compare: dict[str, Any] = {}
     for basket in spec.baskets:
         pairs = {}
+        cands = [c for c in ds.candidates if c.basket == basket.id]
+        missing = {l: sorted(c.item for c in cands if c.lang == l and c.status == "missing") for l in spec.langs}
+        proxies = {l: sorted(c.article.split(":", 1)[1] for c in cands if c.lang == l and c.proxy_for and c.status == "ok") for l in spec.langs}
         for a, b in combinations(spec.langs, 2):
-            pairs[f"{a}_vs_{b}"] = _compare(claim_blocks[(basket.id, a)], claim_blocks[(basket.id, b)], params, f"{basket.id}/{a}_vs_{b}", True)
+            context = {
+                "kind": "languages", "a": a, "b": b,
+                "missing": {k: v for k, v in ((a, missing[a]), (b, missing[b])) if v},
+                "proxies": {k: v for k, v in ((a, proxies[a]), (b, proxies[b])) if v},
+            }
+            pairs[f"{a}_vs_{b}"] = _compare(claim_blocks[(basket.id, a)], claim_blocks[(basket.id, b)], params, f"{basket.id}/{a}_vs_{b}", True, context)
         if pairs:
             compare[basket.id] = pairs
     targets = [b for b in spec.baskets if b.role == "target"]
@@ -234,7 +242,8 @@ def run_analysis(spec: AnalysisSpec, cache: Cache, workdir: Path | None = None) 
     for t in targets:
         for o in others:
             compare[f"{t.id}_vs_{o.id}"] = {
-                lang: _compare(claim_blocks[(t.id, lang)], claim_blocks[(o.id, lang)], params, f"{t.id}_vs_{o.id}/{lang}", False)
+                lang: _compare(claim_blocks[(t.id, lang)], claim_blocks[(o.id, lang)], params, f"{t.id}_vs_{o.id}/{lang}", False,
+                               {"kind": "baskets", "a": t.id, "b": o.id})
                 for lang in spec.langs
             }
 
@@ -267,7 +276,16 @@ def run_analysis(spec: AnalysisSpec, cache: Cache, workdir: Path | None = None) 
     )
 
 
-def _compare(a: dict[str, Any], b: dict[str, Any], params: dict[str, Any], key: str, paired: bool) -> dict[str, Any]:
+def _compare(
+    a: dict[str, Any], b: dict[str, Any], params: dict[str, Any], key: str, paired: bool, context: dict[str, Any]
+) -> dict[str, Any]:
+    """Ratio of indices for every claim, each annotated with `comparable` and, if not, why.
+
+    `context`: kind ("languages" | "baskets"), the two sides' names, and for languages the items
+    missing in each side and the stand-in (proxy) titles, so the reason can be stated plainly: a
+    Haiku run compared a Polish stand-in article with the Czech article when this only said
+    "no_common_articles".
+    """
     out: dict[str, Any] = {"baselines": {}}
     names = ["window", *a["baselines"].keys()]
     for name in names:
@@ -275,11 +293,26 @@ def _compare(a: dict[str, Any], b: dict[str, Any], params: dict[str, Any], key: 
         cb = b["window"] if name == "window" else b["baselines"][name]
         r = ratio_of_indices(ca, cb, params, f"{key}/{name}", paired)
         r["confidence"] = ratio_confidence(r, params)
+        r["kind"], r["a"], r["b"] = context["kind"], context["a"], context["b"]
+        r["comparable"] = r["status"] == "ok"
+        if not r["comparable"]:
+            r["reason"] = r["status"]
+            if r["status"] == "no_common_articles":
+                r["detail"] = {"missing": context.get("missing", {}), "proxies": context.get("proxies", {})}
+            else:
+                r["detail"] = {"status": {context["a"]: ca.get("status"), context["b"]: cb.get("status")}}
+            r["reason_text"] = _not_comparable_reason(r)
         if name == "window":
             out["window"] = r
         else:
             out["baselines"][name] = r
     return out
+
+
+def _not_comparable_reason(r: dict[str, Any]) -> str:
+    from ..report.flag_text import not_comparable_text  # lazy: report imports analyze
+
+    return not_comparable_text(r, "en")
 
 
 # -- CLI ---------------------------------------------------------------------------------
@@ -344,7 +377,7 @@ def summarize(metrics: dict[str, Any], path: Path) -> dict[str, Any]:
                 parts.append(f"vs {year}: {c['label']} {_pct(comp.get('change_norm'))} ({c['direction']}/{c['magnitude']})")
             parts.append("flags: " + (", ".join(codes) if codes else "none"))
             lines.append("; ".join(parts))
-    comps = []
+    comps, attention = [], []
     for name, entry in metrics["compare"].items():
         for sub, r in entry.items():
             w = r.get("window", {})
@@ -353,9 +386,12 @@ def summarize(metrics: dict[str, Any], path: Path) -> dict[str, Any]:
                 c = w["confidence"]
                 comps.append(f"{name} {sub}: ratio {w['ratio']:.3g} [{lo:.3g}; {hi:.3g}], direction {c['direction']}, magnitude {c['magnitude']}")
             else:
-                comps.append(f"{name} {sub}: {w.get('status')}")
+                note = f"{name} {sub}: DO NOT COMPARE DIRECTLY — {w.get('reason_text', w.get('status'))}"
+                comps.append(note)
+                attention.append(note)
     return {
         "metrics_file": str(path),
+        "attention": attention,
         "summary": lines,
         "compare": comps,
         "flags_total": len(metrics["flags"]),
