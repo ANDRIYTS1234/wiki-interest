@@ -6,13 +6,14 @@ One file, standard-library sqlite3 only. Days are stored as ISO strings (YYYY-MM
 from __future__ import annotations
 
 import datetime as dt
+import json
 import sqlite3
 from pathlib import Path
-from typing import Callable, Iterable
+from typing import Any, Callable, Iterable
 
 from .errors import CacheError
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 # coverage.status:
 #   ok          - the API returned this range; days without a record are 0
@@ -48,6 +49,13 @@ CREATE TABLE IF NOT EXISTS http_cache (
     url        TEXT PRIMARY KEY,
     body       TEXT NOT NULL,
     fetched_at TEXT NOT NULL
+);
+-- Source of truth for resolve results used by fetch/analyze.
+-- key: "qid:<QID>:<lang>" or "title:<lang>:<title>"
+CREATE TABLE IF NOT EXISTS resolved (
+    key         TEXT PRIMARY KEY,
+    payload     TEXT NOT NULL,
+    resolved_at TEXT NOT NULL
 );
 """
 
@@ -158,3 +166,17 @@ class Cache:
             (project, article, access, agent),
         )
         return [{"start": s, "end": e, "status": st, "fetched_at": f} for s, e, st, f in cur]
+
+    # -- resolve results ---------------------------------------------------------------
+
+    def put_resolved(self, entries: dict[str, dict[str, Any]]) -> None:
+        now = _iso(self._now())
+        with self.conn:
+            self.conn.executemany(
+                "INSERT OR REPLACE INTO resolved(key, payload, resolved_at) VALUES (?, ?, ?)",
+                [(k, json.dumps(v, ensure_ascii=False, sort_keys=True), now) for k, v in entries.items()],
+            )
+
+    def get_resolved(self, key: str) -> dict[str, Any] | None:
+        row = self.conn.execute("SELECT payload FROM resolved WHERE key = ?", (key,)).fetchone()
+        return json.loads(row[0]) if row else None

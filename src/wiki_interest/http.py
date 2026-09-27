@@ -167,8 +167,17 @@ class HttpClient:
     def get_json(self, url: str, params: Mapping[str, Any] | None = None) -> Any:
         return parse_json(self.get(url, params))
 
-    def get_json_cached(self, url: str, params: Mapping[str, Any] | None = None) -> Any:
-        """For MediaWiki/Wikidata: served from http_cache within the TTL, otherwise fetched and stored."""
+    def get_json_cached(
+        self,
+        url: str,
+        params: Mapping[str, Any] | None = None,
+        *,
+        validate: Callable[[Any], None] | None = None,
+    ) -> Any:
+        """For MediaWiki/Wikidata: served from http_cache within the TTL, otherwise fetched and stored.
+
+        `validate` raises on API-level errors (HTTP 200 with an error body) so they are never cached.
+        """
         key = canonical_url(url, params)
         if self.cache is not None:
             body = self.cache.http_get(key, self.settings.http_ttl_days)
@@ -176,6 +185,8 @@ class HttpClient:
                 self.cache_hits += 1
                 return json.loads(body)
         data = self.get_json(url, params)
+        if validate is not None:
+            validate(data)
         if self.cache is not None:
             self.cache.http_put(key, json.dumps(data, ensure_ascii=False, sort_keys=True))
         return data

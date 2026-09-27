@@ -1,0 +1,318 @@
+{
+ "case": "neutron_star_uk",
+ "input": {
+  "items": [
+   {
+    "lang": "uk",
+    "title": "Нейтронна зоря"
+   },
+   {
+    "lang": "uk",
+    "title": "Сузір'я"
+   }
+  ],
+  "langs": [
+   "uk"
+  ]
+ },
+ "recorded_at": "2026-09-27T15:57:25Z",
+ "user_agent": "wiki-interest/0.1.0 (https://github.com/ANDRIYTS1234/wiki-interest) python-requests/2.34.2",
+ "responses": {
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=%D0%97%D0%B2%D1%96%D0%B7%D0%B4%D0%BE%D0%B7%D0%B1%D1%96%D1%80&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": []
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=%D0%9D%D0%B5%D0%B9%D1%82%D1%80%D0%BE%D0%BD%D0%BD%D0%B0+%D0%B7%D1%96%D1%80%D0%BA%D0%B0&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": [
+      {
+       "logid": 17162404,
+       "ns": 0,
+       "title": "Нейтронна зірка",
+       "pageid": 4159766,
+       "logpage": 51369,
+       "revid": 31109375,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Нейтронна зоря",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move_redir",
+       "user": "Olvin",
+       "timestamp": "2021-03-30T13:53:13Z",
+       "comment": "За Астрономічним енциклопедичним словником"
+      },
+      {
+       "logid": 29496,
+       "ns": 0,
+       "title": "Нейтронна зірка",
+       "pageid": 4159766,
+       "logpage": 0,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Нейтронна зоря",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move",
+       "user": "A1",
+       "timestamp": "2007-04-07T20:14:29Z",
+       "comment": "Як і з подвійними - в підручнику \"зоря\""
+      }
+     ]
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=%D0%9D%D0%B5%D0%B9%D1%82%D1%80%D0%BE%D0%BD%D0%BD%D1%96+%D0%B7%D0%BE%D1%80%D1%96&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": []
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=%D0%A1%D1%83%D0%B7%D1%96%D1%80%E2%80%99%D1%8F&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": []
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=41242&prop=redirects&rdlimit=max&rdnamespace=0&rdprop=title": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "query": {
+     "pages": [
+      {
+       "pageid": 41242,
+       "ns": 0,
+       "title": "Сузір'я",
+       "redirects": [
+        {
+         "ns": 0,
+         "title": "Сузір’я"
+        },
+        {
+         "ns": 0,
+         "title": "Звіздозбір"
+        }
+       ]
+      }
+     ]
+    },
+    "limits": {
+     "redirects": 500
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=41242&prop=revisions&rvdir=newer&rvlimit=1&rvprop=timestamp": {
+   "status": 200,
+   "json": {
+    "continue": {
+     "rvcontinue": "20060430200451|181025",
+     "continue": "||"
+    },
+    "query": {
+     "pages": [
+      {
+       "pageid": 41242,
+       "ns": 0,
+       "title": "Сузір'я",
+       "revisions": [
+        {
+         "timestamp": "2006-04-30T19:42:39Z"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=51369&prop=redirects&rdlimit=max&rdnamespace=0&rdprop=title": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "query": {
+     "pages": [
+      {
+       "pageid": 51369,
+       "ns": 0,
+       "title": "Нейтронна зоря",
+       "redirects": [
+        {
+         "ns": 0,
+         "title": "Нейтронні зорі"
+        },
+        {
+         "ns": 0,
+         "title": "Нейтронна зірка"
+        }
+       ]
+      }
+     ]
+    },
+    "limits": {
+     "redirects": 500
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=51369&prop=revisions&rvdir=newer&rvlimit=1&rvprop=timestamp": {
+   "status": 200,
+   "json": {
+    "continue": {
+     "rvcontinue": "20060827211801|258556",
+     "continue": "||"
+    },
+    "query": {
+     "pages": [
+      {
+       "pageid": 51369,
+       "ns": 0,
+       "title": "Нейтронна зоря",
+       "revisions": [
+        {
+         "timestamp": "2006-08-06T19:57:03Z"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&ppprop=disambiguation%7Cwikibase_item&prop=info%7Cpageprops&redirects=1&titles=%D0%9D%D0%B5%D0%B9%D1%82%D1%80%D0%BE%D0%BD%D0%BD%D0%B0+%D0%B7%D0%BE%D1%80%D1%8F%7C%D0%A1%D1%83%D0%B7%D1%96%D1%80%27%D1%8F": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "query": {
+     "pages": [
+      {
+       "pageid": 41242,
+       "ns": 0,
+       "title": "Сузір'я",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:03:37Z",
+       "lastrevid": 47997680,
+       "length": 60840,
+       "pageprops": {
+        "wikibase_item": "Q8928"
+       }
+      },
+      {
+       "pageid": 51369,
+       "ns": 0,
+       "title": "Нейтронна зоря",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-24T15:22:41Z",
+       "lastrevid": 48883362,
+       "length": 89885,
+       "pageprops": {
+        "wikibase_item": "Q4202"
+       }
+      }
+     ]
+    }
+   }
+  },
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q4202%7CQ8928&languages=en%7Cuk&props=labels%7Cdescriptions%7Csitelinks&sitefilter=ukwiki": {
+   "status": 200,
+   "json": {
+    "entities": {
+     "Q4202": {
+      "type": "item",
+      "id": "Q4202",
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "neutron star"
+       },
+       "uk": {
+        "language": "uk",
+        "value": "нейтронна зоря"
+       }
+      },
+      "descriptions": {
+       "en": {
+        "language": "en",
+        "value": "collapsed core of a massive star consisting mainly of neutrons"
+       },
+       "uk": {
+        "language": "uk",
+        "value": "вироджена зірка, вага котрої підтримується тиском вільних нейтронів"
+       }
+      },
+      "sitelinks": {
+       "ukwiki": {
+        "site": "ukwiki",
+        "title": "Нейтронна зоря",
+        "badges": []
+       }
+      }
+     },
+     "Q8928": {
+      "type": "item",
+      "id": "Q8928",
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "constellation"
+       },
+       "uk": {
+        "language": "uk",
+        "value": "сузір'я"
+       }
+      },
+      "descriptions": {
+       "en": {
+        "language": "en",
+        "value": "image on the celestial sphere consisting of stars according to any current of historical system or description"
+       },
+       "uk": {
+        "language": "uk",
+        "value": "група зір, що утворюють певну фігуру чи контур"
+       }
+      },
+      "sitelinks": {
+       "ukwiki": {
+        "site": "ukwiki",
+        "title": "Сузір'я",
+        "badges": []
+       }
+      }
+     }
+    },
+    "success": 1
+   }
+  }
+ }
+}

@@ -1,0 +1,213 @@
+{
+ "case": "fasting_pl_cs",
+ "input": {
+  "items": [
+   {
+    "qid": "Q1666254"
+   },
+   {
+    "query": "інтервальне голодування",
+    "query_lang": "uk"
+   }
+  ],
+  "langs": [
+   "pl",
+   "cs"
+  ]
+ },
+ "recorded_at": "2026-09-27T15:57:14Z",
+ "user_agent": "wiki-interest/0.1.0 (https://github.com/ANDRIYTS1234/wiki-interest) python-requests/2.34.2",
+ "responses": {
+  "https://cs.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=1632302&prop=redirects&rdlimit=max&rdnamespace=0&rdprop=title": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "query": {
+     "pages": [
+      {
+       "pageid": 1632302,
+       "ns": 0,
+       "title": "Přerušovaný půst"
+      }
+     ]
+    },
+    "limits": {
+     "redirects": 500
+    }
+   }
+  },
+  "https://cs.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=1632302&prop=revisions&rvdir=newer&rvlimit=1&rvprop=timestamp": {
+   "status": 200,
+   "json": {
+    "continue": {
+     "rvcontinue": "20201028165809|19113864",
+     "continue": "||"
+    },
+    "query": {
+     "pages": [
+      {
+       "pageid": 1632302,
+       "ns": 0,
+       "title": "Přerušovaný půst",
+       "revisions": [
+        {
+         "timestamp": "2020-10-28T12:14:45Z"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "https://cs.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&ppprop=disambiguation%7Cwikibase_item&prop=info%7Cpageprops&redirects=1&titles=P%C5%99eru%C5%A1ovan%C3%BD+p%C5%AFst": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "query": {
+     "pages": [
+      {
+       "pageid": 1632302,
+       "ns": 0,
+       "title": "Přerušovaný půst",
+       "contentmodel": "wikitext",
+       "pagelanguage": "cs",
+       "pagelanguagehtmlcode": "cs",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-15T12:20:42Z",
+       "lastrevid": 25947007,
+       "length": 7148,
+       "pageprops": {
+        "wikibase_item": "Q1666254"
+       }
+      }
+     ]
+    }
+   }
+  },
+  "https://pl.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&list=search&srlimit=5&srnamespace=0&srprop=snippet%7Cwordcount&srsearch=intermittent+fasting": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "continue": {
+     "sroffset": 5,
+     "continue": "-||"
+    },
+    "query": {
+     "searchinfo": {
+      "totalhits": 6,
+      "suggestion": "intermittent falling",
+      "suggestionsnippet": "intermittent <em>falling</em>"
+     },
+     "search": [
+      {
+       "ns": 0,
+       "title": "Stres oksydacyjny",
+       "pageid": 1238433,
+       "wordcount": 1754,
+       "snippet": "alterations in cellular physiology produced by caloric restriction, <span class=\"searchmatch\">intermittent</span> <span class=\"searchmatch\">fasting</span>, exercise and dietary phytonutrients: &quot;Mitohormesis&quot; for health and"
+      },
+      {
+       "ns": 0,
+       "title": "Głodówka lecznicza",
+       "pageid": 74017,
+       "wordcount": 2433,
+       "snippet": "FJ.F. Trepanowski John FJ.F., Krista AK.A. Varady Krista AK.A., <span class=\"searchmatch\">Intermittent</span> <span class=\"searchmatch\">fasting</span> combined with calorie restriction is effective for weight loss and"
+      },
+      {
+       "ns": 0,
+       "title": "Paleolityczny styl życia",
+       "pageid": 3331077,
+       "wordcount": 6476,
+       "snippet": "Clinical Nutrition”. 86 (1), s. 7-13, 2007.  Adrienne Barnosky, et al. <span class=\"searchmatch\">Intermittent</span> <span class=\"searchmatch\">fasting</span> vs daily calorie restriction for type 2 diabetes prevention: a review"
+      },
+      {
+       "ns": 0,
+       "title": "Skróty i skrótowce używane w medycynie",
+       "pageid": 46716,
+       "wordcount": 4655,
+       "snippet": "embrionale) FK – fosfataza kwaśna, ACP FPG – (ang.) stężenie glukozy na czczo (<span class=\"searchmatch\">Fasting</span> Plasma Glucose) FSH – hormon folikulotropowy fT3 – wolna trójjodotyronina"
+      },
+      {
+       "ns": 0,
+       "title": "Chelatacja (medycyna)",
+       "pageid": 638258,
+       "wordcount": 6771,
+       "snippet": "[dostęp 2024-10-10]  (ang.). B.B. Guldager B.B. i inni, EDTA treatment of <span class=\"searchmatch\">intermittent</span> claudication--a double-blind, placebo-controlled study, „Journal of Internal"
+      }
+     ]
+    }
+   }
+  },
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q1666254&languages=cs%7Cen%7Cpl&props=labels%7Cdescriptions%7Csitelinks&sitefilter=cswiki%7Cplwiki": {
+   "status": 200,
+   "json": {
+    "entities": {
+     "Q1666254": {
+      "type": "item",
+      "id": "Q1666254",
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "intermittent fasting"
+       },
+       "cs": {
+        "language": "cs",
+        "value": "Přerušovaný půst"
+       }
+      },
+      "descriptions": {
+       "en": {
+        "language": "en",
+        "value": "a diet that cycles between a period of fasting and non-fasting"
+       }
+      },
+      "sitelinks": {
+       "cswiki": {
+        "site": "cswiki",
+        "title": "Přerušovaný půst",
+        "badges": []
+       }
+      }
+     }
+    },
+    "success": 1
+   }
+  },
+  "https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json&language=uk&limit=10&search=%D1%96%D0%BD%D1%82%D0%B5%D1%80%D0%B2%D0%B0%D0%BB%D1%8C%D0%BD%D0%B5+%D0%B3%D0%BE%D0%BB%D0%BE%D0%B4%D1%83%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F&type=item&uselang=uk": {
+   "status": 200,
+   "json": {
+    "searchinfo": {
+     "search": "інтервальне голодування"
+    },
+    "search": [
+     {
+      "id": "Q1666254",
+      "title": "Q1666254",
+      "pageid": 1599841,
+      "concepturi": "http://www.wikidata.org/entity/Q1666254",
+      "repository": "wikidata",
+      "url": "//www.wikidata.org/wiki/Q1666254",
+      "display": {
+       "label": {
+        "value": "Інтервальне голодування",
+        "language": "uk"
+       },
+       "description": {
+        "value": "a diet that cycles between a period of fasting and non-fasting",
+        "language": "en"
+       }
+      },
+      "label": "Інтервальне голодування",
+      "description": "a diet that cycles between a period of fasting and non-fasting",
+      "match": {
+       "type": "label",
+       "language": "uk",
+       "text": "Інтервальне голодування"
+      }
+     }
+    ],
+    "success": 1
+   }
+  }
+ }
+}

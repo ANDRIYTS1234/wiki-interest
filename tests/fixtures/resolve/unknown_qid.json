@@ -1,0 +1,41 @@
+{
+ "case": "unknown_qid",
+ "input": {
+  "items": [
+   {
+    "qid": "Q999999999999"
+   }
+  ],
+  "langs": [
+   "uk"
+  ]
+ },
+ "recorded_at": "2026-09-27T15:58:51Z",
+ "user_agent": "wiki-interest/0.1.0 (https://github.com/ANDRIYTS1234/wiki-interest) python-requests/2.34.2",
+ "error": null,
+ "responses": {
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q999999999999&languages=en%7Cuk&props=labels%7Cdescriptions%7Csitelinks&sitefilter=ukwiki": {
+   "status": 200,
+   "json": {
+    "error": {
+     "code": "no-such-entity",
+     "info": "Could not find an entity with the ID \"Q999999999999\".",
+     "id": "Q999999999999",
+     "messages": [
+      {
+       "name": "wikibase-api-no-such-entity",
+       "parameters": [
+        "Q999999999999"
+       ],
+       "html": {
+        "*": "Could not find an entity with the ID \"Q999999999999\"."
+       }
+      }
+     ],
+     "*": "See https://www.wikidata.org/w/api.php for API usage. Subscribe to the mediawiki-api-announce mailing list at &lt;https://lists.wikimedia.org/postorius/lists/mediawiki-api-announce.lists.wikimedia.org/&gt; for notice of API deprecations and breaking changes."
+    },
+    "servedby": "mw-api-ext.eqiad.main-85f7454bb8-92r62"
+   }
+  }
+ }
+}

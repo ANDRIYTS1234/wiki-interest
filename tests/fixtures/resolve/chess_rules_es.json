@@ -1,0 +1,542 @@
+{
+ "case": "chess_rules_es",
+ "input": {
+  "items": [
+   {
+    "lang": "es",
+    "title": "Reglas del ajedrez"
+   }
+  ],
+  "langs": [
+   "es",
+   "de",
+   "pt"
+  ]
+ },
+ "recorded_at": "2026-09-27T15:57:21Z",
+ "user_agent": "wiki-interest/0.1.0 (https://github.com/ANDRIYTS1234/wiki-interest) python-requests/2.34.2",
+ "responses": {
+  "https://de.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&list=search&srlimit=5&srnamespace=0&srprop=snippet%7Cwordcount&srsearch=Schachregeln": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "continue": {
+     "sroffset": 5,
+     "continue": "-||"
+    },
+    "query": {
+     "searchinfo": {
+      "totalhits": 119,
+      "suggestion": "schach regeln",
+      "suggestionsnippet": "schach regeln"
+     },
+     "search": [
+      {
+       "ns": 0,
+       "title": "Schach",
+       "pageid": 4717,
+       "wordcount": 10891,
+       "snippet": "sieben zu beherrschenden Fähigkeiten der Ritter. Populär wurden die <span class=\"searchmatch\">Schachregeln</span> von Alfons X. Im 15. Jahrhundert kam es, vermutlich in Spanien, zu einer"
+      },
+      {
+       "ns": 0,
+       "title": "Rochade",
+       "pageid": 33028,
+       "wordcount": 2274,
+       "snippet": "derselben Farbe interagieren. Es handelt sich um den einzigen nach den <span class=\"searchmatch\">Schachregeln</span> erlaubten Zug, bei dem zwei Figuren zugleich bewegt werden. Die Rochade"
+      },
+      {
+       "ns": 0,
+       "title": "Schnellschach",
+       "pageid": 290324,
+       "wordcount": 334,
+       "snippet": "Übersetzung der FIDE <span class=\"searchmatch\">Schachregeln</span> vom 1. Juli 2014 auf der Website des DSB, Anhang A1, S. 21. Deutsche Übersetzung der FIDE <span class=\"searchmatch\">Schachregeln</span> vom 1. Juli 2014"
+      },
+      {
+       "ns": 0,
+       "title": "Schachvariante",
+       "pageid": 352184,
+       "wordcount": 6728,
+       "snippet": "Schachvarianten sind international bekannt. Sie ändern die allgemeinen <span class=\"searchmatch\">Schachregeln</span> nur minimal. In erster Linie wird die Brettgröße und die Grundstellung"
+      },
+      {
+       "ns": 0,
+       "title": "Gardez (Schach)",
+       "pageid": 172091,
+       "wordcount": 107,
+       "snippet": "einem Angriff auf den König – ist sie heute nicht mehr Bestandteil der <span class=\"searchmatch\">Schachregeln</span> und allenfalls noch bei Freizeitspielern üblich. Im Gegensatz zum Schachgebot"
+      }
+     ]
+    }
+   }
+  },
+  "https://de.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&list=search&srlimit=5&srnamespace=0&srprop=snippet%7Cwordcount&srsearch=rules+of+chess": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "continue": {
+     "sroffset": 5,
+     "continue": "-||"
+    },
+    "query": {
+     "searchinfo": {
+      "totalhits": 76
+     },
+     "search": [
+      {
+       "ns": 0,
+       "title": "Schachturnier",
+       "pageid": 9880542,
+       "wordcount": 1372,
+       "snippet": "9. Mai 2017.  Tim Just, Daniel B. Burg: U.S. <span class=\"searchmatch\">Chess</span> Federation’s Official <span class=\"searchmatch\">Rules</span> <span class=\"searchmatch\">of</span> <span class=\"searchmatch\">Chess</span> (= McKay <span class=\"searchmatch\">chess</span> library). 5. Auflage. Random House Puzzles &amp; Games"
+      },
+      {
+       "ns": 0,
+       "title": "Umwandlung (Schach)",
+       "pageid": 1162182,
+       "wordcount": 1671,
+       "snippet": "Sergeant: A Century <span class=\"searchmatch\">of</span> British <span class=\"searchmatch\">Chess</span>. Hutchinson, London 1934, S. 117, 138; Edward Winter: Dummy pawn. In: <span class=\"searchmatch\">Chess</span> Variants and <span class=\"searchmatch\">Rule</span> Changes. chesshistory"
+      },
+      {
+       "ns": 0,
+       "title": "Schachweltmeister",
+       "pageid": 17170,
+       "wordcount": 4038,
+       "snippet": "Walker: The Light and Lustre <span class=\"searchmatch\">of</span> <span class=\"searchmatch\">Chess</span>, S. 351. George Walker: The Light and Lustre <span class=\"searchmatch\">of</span> <span class=\"searchmatch\">Chess</span>, in: <span class=\"searchmatch\">Chess</span> &amp; <span class=\"searchmatch\">Chess</span>-Players: Consisting <span class=\"searchmatch\">of</span> Original Stories and Sketches"
+      },
+      {
+       "ns": 0,
+       "title": "Neil McDonald (Schachspieler)",
+       "pageid": 11433036,
+       "wordcount": 533,
+       "snippet": "Lopez: Move by Move, 2011, ISBN 978-1-85744-669-2 Break the <span class=\"searchmatch\">Rules</span>! A Modern Look at <span class=\"searchmatch\">Chess</span> Strategy, 2012, ISBN 978-1-85744-673-9 King’s Indian Attack:"
+      },
+      {
+       "ns": 0,
+       "title": "Wladimir Borissowitsch Kramnik",
+       "pageid": 131651,
+       "wordcount": 4667,
+       "snippet": "(englisch). Jacob Aagaard: Excelling at <span class=\"searchmatch\">Chess</span>; London 2002, S. 29. Neil McDonald: <span class=\"searchmatch\">Chess</span> Secrets. The Giants <span class=\"searchmatch\">of</span> <span class=\"searchmatch\">Chess</span> Strategy; London 2007, S. 9. Boris Avrukh:"
+      }
+     ]
+    }
+   }
+  },
+  "https://es.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=Movimiento+%28ajedrez%29&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": []
+    }
+   }
+  },
+  "https://es.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=Reglamento+del+ajedrez&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": [
+      {
+       "logid": 10166882,
+       "ns": 0,
+       "title": "Reglamento del ajedrez",
+       "pageid": 7424063,
+       "logpage": 29877,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Leyes del ajedrez",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move",
+       "user": "Yturre",
+       "timestamp": "2016-05-25T11:00:24Z",
+       "comment": "Es el nombre utilizado por todas las organizaciones internacionales para referirse a las reglas del ajedrez"
+      },
+      {
+       "logid": 1439977,
+       "ns": 0,
+       "title": "Reglamento del ajedrez",
+       "pageid": 7424063,
+       "logpage": 0,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Reglas del ajedrez",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move_redir",
+       "user": "Filipo",
+       "timestamp": "2008-05-12T12:33:53Z",
+       "comment": ""
+      }
+     ]
+    }
+   }
+  },
+  "https://es.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=Reglas+del+ajedrez&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": [
+      {
+       "logid": 1443254,
+       "ns": 0,
+       "title": "Reglas del ajedrez",
+       "pageid": 1666156,
+       "logpage": 0,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Reglamento del ajedrez",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move_redir",
+       "user": "Filipo",
+       "timestamp": "2008-05-13T19:17:13Z",
+       "comment": "Nombre más correcto"
+      },
+      {
+       "logid": 1439975,
+       "ns": 0,
+       "title": "Reglas del ajedrez",
+       "pageid": 1666156,
+       "logpage": 0,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Reglamento del ajedrez",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move",
+       "user": "Filipo",
+       "timestamp": "2008-05-12T12:32:03Z",
+       "comment": "Fusionar historiales"
+      }
+     ]
+    }
+   }
+  },
+  "https://es.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=29877&prop=redirects&rdlimit=max&rdnamespace=0&rdprop=title": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "query": {
+     "pages": [
+      {
+       "pageid": 29877,
+       "ns": 0,
+       "title": "Leyes del ajedrez",
+       "redirects": [
+        {
+         "ns": 0,
+         "title": "Reglas del ajedrez"
+        },
+        {
+         "ns": 0,
+         "title": "Reglamento del ajedrez"
+        },
+        {
+         "ns": 0,
+         "title": "Movimiento (ajedrez)"
+        }
+       ]
+      }
+     ]
+    },
+    "limits": {
+     "redirects": 500
+    }
+   }
+  },
+  "https://es.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=29877&prop=revisions&rvdir=newer&rvlimit=1&rvprop=timestamp": {
+   "status": 200,
+   "json": {
+    "continue": {
+     "rvcontinue": "20040128175653|89273",
+     "continue": "||"
+    },
+    "query": {
+     "pages": [
+      {
+       "pageid": 29877,
+       "ns": 0,
+       "title": "Leyes del ajedrez",
+       "revisions": [
+        {
+         "timestamp": "2004-01-28T17:56:25Z"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "https://es.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&ppprop=disambiguation%7Cwikibase_item&prop=info%7Cpageprops&redirects=1&titles=Reglas+del+ajedrez": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "query": {
+     "redirects": [
+      {
+       "from": "Reglas del ajedrez",
+       "to": "Leyes del ajedrez"
+      }
+     ],
+     "pages": [
+      {
+       "pageid": 29877,
+       "ns": 0,
+       "title": "Leyes del ajedrez",
+       "contentmodel": "wikitext",
+       "pagelanguage": "es",
+       "pagelanguagehtmlcode": "es",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T00:15:20Z",
+       "lastrevid": 175471849,
+       "length": 71257,
+       "pageprops": {
+        "wikibase_item": "Q3392263"
+       }
+      }
+     ]
+    }
+   }
+  },
+  "https://pt.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=Leis+do+Xadrez&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": [
+      {
+       "logid": 4589402,
+       "ns": 0,
+       "title": "Leis do Xadrez",
+       "pageid": 2702357,
+       "logpage": 2702357,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Leis do xadrez",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move_redir",
+       "user": "Barão de Itararé",
+       "timestamp": "2010-04-15T23:14:00Z",
+       "comment": ""
+      }
+     ]
+    }
+   }
+  },
+  "https://pt.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=Regra+de+xadrez&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": []
+    }
+   }
+  },
+  "https://pt.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=Regras+do+Xadrez&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": []
+    }
+   }
+  },
+  "https://pt.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=Regras+do+xadrez&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": [
+      {
+       "logid": 1208981,
+       "ns": 0,
+       "title": "Regras do xadrez",
+       "pageid": 1974573,
+       "logpage": 0,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Leis do Xadrez",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move",
+       "user": "Roberto Cruz",
+       "timestamp": "2008-10-08T14:05:33Z",
+       "comment": "Denominação correta da norma magna do enxadrismo."
+      }
+     ]
+    }
+   }
+  },
+  "https://pt.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=1960&prop=redirects&rdlimit=max&rdnamespace=0&rdprop=title": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "query": {
+     "pages": [
+      {
+       "pageid": 1960,
+       "ns": 0,
+       "title": "Leis do xadrez",
+       "redirects": [
+        {
+         "ns": 0,
+         "title": "Regras do Xadrez"
+        },
+        {
+         "ns": 0,
+         "title": "Regras do xadrez"
+        },
+        {
+         "ns": 0,
+         "title": "Regra de xadrez"
+        },
+        {
+         "ns": 0,
+         "title": "Leis do Xadrez"
+        }
+       ]
+      }
+     ]
+    },
+    "limits": {
+     "redirects": 500
+    }
+   }
+  },
+  "https://pt.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=1960&prop=revisions&rvdir=newer&rvlimit=1&rvprop=timestamp": {
+   "status": 200,
+   "json": {
+    "continue": {
+     "rvcontinue": "20040204183320|20360",
+     "continue": "||"
+    },
+    "query": {
+     "pages": [
+      {
+       "pageid": 1960,
+       "ns": 0,
+       "title": "Leis do xadrez",
+       "revisions": [
+        {
+         "timestamp": "2002-10-28T20:32:12Z"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "https://pt.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&ppprop=disambiguation%7Cwikibase_item&prop=info%7Cpageprops&redirects=1&titles=Leis+do+xadrez": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "query": {
+     "pages": [
+      {
+       "pageid": 1960,
+       "ns": 0,
+       "title": "Leis do xadrez",
+       "contentmodel": "wikitext",
+       "pagelanguage": "pt",
+       "pagelanguagehtmlcode": "pt",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-20T20:56:31Z",
+       "lastrevid": 71965961,
+       "length": 31811,
+       "pageprops": {
+        "wikibase_item": "Q3392263"
+       }
+      }
+     ]
+    }
+   }
+  },
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q3392263&languages=de%7Cen%7Ces%7Cpt&props=labels%7Cdescriptions%7Csitelinks&sitefilter=dewiki%7Ceswiki%7Cptwiki": {
+   "status": 200,
+   "json": {
+    "entities": {
+     "Q3392263": {
+      "type": "item",
+      "id": "Q3392263",
+      "labels": {
+       "pt": {
+        "language": "pt",
+        "value": "leis do xadrez"
+       },
+       "en": {
+        "language": "en",
+        "value": "rules of chess"
+       },
+       "es": {
+        "language": "es",
+        "value": "Leyes del ajedrez"
+       },
+       "de": {
+        "language": "de",
+        "value": "Schachregeln"
+       }
+      },
+      "descriptions": {
+       "de": {
+        "language": "de",
+        "value": "Spielregeln im Schach"
+       },
+       "es": {
+        "language": "es",
+        "value": "reglas para jugar ajedrez"
+       },
+       "en": {
+        "language": "en",
+        "value": "rules of play for the game of chess"
+       }
+      },
+      "sitelinks": {
+       "eswiki": {
+        "site": "eswiki",
+        "title": "Leyes del ajedrez",
+        "badges": []
+       },
+       "ptwiki": {
+        "site": "ptwiki",
+        "title": "Leis do xadrez",
+        "badges": []
+       }
+      }
+     }
+    },
+    "success": 1
+   }
+  }
+ }
+}

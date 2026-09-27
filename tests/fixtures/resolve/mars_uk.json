@@ -1,0 +1,1363 @@
+{
+ "case": "mars_uk",
+ "input": {
+  "items": [
+   {
+    "lang": "uk",
+    "title": "Марс"
+   },
+   {
+    "lang": "uk",
+    "title": "Марс (планета)"
+   },
+   {
+    "query": "Марс",
+    "query_lang": "uk"
+   }
+  ],
+  "langs": [
+   "uk"
+  ]
+ },
+ "recorded_at": "2026-09-27T15:58:12Z",
+ "user_agent": "wiki-interest/0.1.0 (https://github.com/ANDRIYTS1234/wiki-interest) python-requests/2.34.2",
+ "responses": {
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&generator=links&gpllimit=max&gplnamespace=0&pageids=80160&ppprop=wikibase_item%7Cdisambiguation&prop=pageprops%7Cdescription%7Cinfo": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "links": 500
+    },
+    "query": {
+     "pages": [
+      {
+       "pageid": 643,
+       "ns": 0,
+       "title": "Україна",
+       "pageprops": {
+        "wikibase_item": "Q212"
+       },
+       "description": "держава, розташована в Центральній і Східній Європі",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-25T09:09:33Z",
+       "lastrevid": 48845329,
+       "length": 572618
+      },
+      {
+       "pageid": 1072,
+       "ns": 0,
+       "title": "Росія",
+       "pageprops": {
+        "wikibase_item": "Q159"
+       },
+       "description": "держава у Східній Європі та Північній Азії, найбільша за площею у світі",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-27T13:44:35Z",
+       "lastrevid": 48898560,
+       "length": 210083
+      },
+      {
+       "pageid": 1758,
+       "ns": 0,
+       "title": "Марс (планета)",
+       "pageprops": {
+        "wikibase_item": "Q111"
+       },
+       "description": "четверта від Сонця та друга найменша (після Меркурія) планета в Сонячній системі",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:03:35Z",
+       "lastrevid": 48673828,
+       "length": 273759
+      },
+      {
+       "pageid": 1785,
+       "ns": 0,
+       "title": "Франція",
+       "pageprops": {
+        "wikibase_item": "Q142"
+       },
+       "description": "держава на заході Європи",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-25T18:37:47Z",
+       "lastrevid": 48891254,
+       "length": 171884
+      },
+      {
+       "pageid": 1797,
+       "ns": 0,
+       "title": "Чернігівська область",
+       "pageprops": {
+        "wikibase_item": "Q167874"
+       },
+       "description": "адміністративно-територіальна одиниця першого рівня на півночі України",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-27T07:52:11Z",
+       "lastrevid": 48848332,
+       "length": 71081
+      },
+      {
+       "pageid": 8895,
+       "ns": 0,
+       "title": "Марс (міфологія)",
+       "pageprops": {
+        "wikibase_item": "Q112"
+       },
+       "description": "бог родючості, рослинності і дикої природи в античній міфології",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-15T17:29:55Z",
+       "lastrevid": 43084526,
+       "length": 14849
+      },
+      {
+       "pageid": 20494,
+       "ns": 0,
+       "title": "Майстерня революційного слова",
+       "pageprops": {
+        "wikibase_item": "Q4284360"
+       },
+       "description": "літературна спілка",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-04T10:53:59Z",
+       "lastrevid": 48365762,
+       "length": 11711
+      },
+      {
+       "pageid": 22469,
+       "ns": 0,
+       "title": "Англійська мова",
+       "pageprops": {
+        "wikibase_item": "Q1860"
+       },
+       "description": "західногерманська мова, яка виникла в Англії",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-24T22:12:42Z",
+       "lastrevid": 48885693,
+       "length": 254530
+      },
+      {
+       "pageid": 37989,
+       "ns": 0,
+       "title": "Географічні об'єкти",
+       "pageprops": {
+        "wikibase_item": "Q618123"
+       },
+       "description": "точка; цілісне утворення земної поверхні",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-27T13:55:47Z",
+       "lastrevid": 45519457,
+       "length": 2481
+      },
+      {
+       "pageid": 39150,
+       "ns": 0,
+       "title": "Село",
+       "pageprops": {
+        "wikibase_item": "Q532"
+       },
+       "description": "найменша адміністративно-територіальна одиниця в країні",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T15:52:43Z",
+       "lastrevid": 48866277,
+       "length": 64163
+      },
+      {
+       "pageid": 155285,
+       "ns": 0,
+       "title": "Прізвище",
+       "pageprops": {
+        "wikibase_item": "Q101352"
+       },
+       "description": "частина повного імені людини, спільна для родини",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-26T21:42:53Z",
+       "lastrevid": 45444848,
+       "length": 15460
+      },
+      {
+       "pageid": 157394,
+       "ns": 0,
+       "title": "Башкортостан",
+       "pageprops": {
+        "wikibase_item": "Q5710"
+       },
+       "description": "суб'єкт Російської Федерації, республіка в її складі",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:03:40Z",
+       "lastrevid": 48860176,
+       "length": 68476
+      },
+      {
+       "pageid": 193122,
+       "ns": 0,
+       "title": "Калузька область",
+       "pageprops": {
+        "wikibase_item": "Q2842"
+       },
+       "description": "суб'єкт Російської Федерації",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-24T15:19:04Z",
+       "lastrevid": 48883352,
+       "length": 26752
+      },
+      {
+       "pageid": 193451,
+       "ns": 0,
+       "title": "Курганська область",
+       "pageprops": {
+        "wikibase_item": "Q5741"
+       },
+       "description": "суб'єкт Російської Федерації",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-15T12:35:10Z",
+       "lastrevid": 48809494,
+       "length": 16773
+      },
+      {
+       "pageid": 299532,
+       "ns": 0,
+       "title": "Марс (Україна)",
+       "pageprops": {
+        "wikibase_item": "Q4282418"
+       },
+       "description": "село в Чернігівській області, Україна",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:03:49Z",
+       "lastrevid": 46928118,
+       "length": 11148
+      },
+      {
+       "pageid": 423933,
+       "ns": 0,
+       "title": "Аургазинський район",
+       "pageprops": {
+        "wikibase_item": "Q781569"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-04T10:54:24Z",
+       "lastrevid": 37872709,
+       "length": 16347
+      },
+      {
+       "pageid": 563982,
+       "ns": 0,
+       "title": "Марс-сюр-Альє",
+       "pageprops": {
+        "wikibase_item": "Q1141685"
+       },
+       "description": "муніципалітет у департаменті Ньєвр, Франція",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:04:01Z",
+       "lastrevid": 42099101,
+       "length": 6738
+      },
+      {
+       "pageid": 592940,
+       "ns": 0,
+       "title": "Марс-су-Бурк",
+       "pageprops": {
+        "wikibase_item": "Q429153"
+       },
+       "description": "муніципалітет у департаменті Арденни, Франція",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:04:02Z",
+       "lastrevid": 42099099,
+       "length": 6174
+      },
+      {
+       "pageid": 678207,
+       "ns": 0,
+       "title": "Марс (Ардеш)",
+       "pageprops": {
+        "wikibase_item": "Q137393"
+       },
+       "description": "муніципалітет у департаменті Ардеш, Франція",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:04:07Z",
+       "lastrevid": 42099093,
+       "length": 7583
+      },
+      {
+       "pageid": 714278,
+       "ns": 0,
+       "title": "Марс (Луара)",
+       "pageprops": {
+        "wikibase_item": "Q1116491"
+       },
+       "description": "муніципалітет у департаменті Луара, Франція",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:04:08Z",
+       "lastrevid": 42099095,
+       "length": 7601
+      },
+      {
+       "pageid": 808447,
+       "ns": 0,
+       "title": "Марс (Гар)",
+       "pageprops": {
+        "wikibase_item": "Q31348"
+       },
+       "description": "колишній муніципалітет у департаменті Гар, Франція",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:04:12Z",
+       "lastrevid": 39383717,
+       "length": 7591
+      },
+      {
+       "pageid": 818518,
+       "ns": 0,
+       "title": "Марс-ла-Тур",
+       "pageprops": {
+        "wikibase_item": "Q228791"
+       },
+       "description": "муніципалітет у департаменті Мерт і Мозель, Франція",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:04:13Z",
+       "lastrevid": 42099097,
+       "length": 7628
+      },
+      {
+       "pageid": 928206,
+       "ns": 0,
+       "title": "Мадемуазель Марс",
+       "pageprops": {
+        "wikibase_item": "Q458156"
+       },
+       "description": "французька акторка",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-27T12:36:00Z",
+       "lastrevid": 48819569,
+       "length": 4265
+      },
+      {
+       "pageid": 938310,
+       "ns": 0,
+       "title": "Середньоатлантичний регіональний космопорт",
+       "pageprops": {
+        "wikibase_item": "Q2660820"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-12T13:06:52Z",
+       "lastrevid": 48828635,
+       "length": 7392
+      },
+      {
+       "pageid": 985142,
+       "ns": 0,
+       "title": "Марс (космічна програма)",
+       "pageprops": {
+        "wikibase_item": "Q31316"
+       },
+       "description": "програма",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:04:22Z",
+       "lastrevid": 48871023,
+       "length": 7506
+      },
+      {
+       "pageid": 1139995,
+       "ns": 0,
+       "title": "Бруно Марс",
+       "pageprops": {
+        "wikibase_item": "Q1450"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:04:34Z",
+       "lastrevid": 47656131,
+       "length": 25801
+      },
+      {
+       "pageid": 1227530,
+       "ns": 0,
+       "title": "Марс (морський термін)",
+       "pageprops": {
+        "wikibase_item": "Q31325"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-04T10:55:28Z",
+       "lastrevid": 33151143,
+       "length": 11481
+      },
+      {
+       "pageid": 1323640,
+       "ns": 0,
+       "title": "Присілок",
+       "pageprops": {
+        "wikibase_item": "Q5084"
+       },
+       "description": "сільський населений пункт",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-08T02:00:28Z",
+       "lastrevid": 44532257,
+       "length": 6228
+      },
+      {
+       "pageid": 1324104,
+       "ns": 0,
+       "title": "MARS",
+       "pageprops": {
+        "wikibase_item": "Q1881198"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:04:45Z",
+       "lastrevid": 47186431,
+       "length": 47866
+      },
+      {
+       "pageid": 1325405,
+       "ns": 0,
+       "title": "Кушнаренковський район",
+       "pageprops": {
+        "wikibase_item": "Q1702796"
+       },
+       "description": "муніципальний район у Росії",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-04T10:55:35Z",
+       "lastrevid": 37380503,
+       "length": 7728
+      },
+      {
+       "pageid": 1558696,
+       "ns": 0,
+       "title": "Особове ім'я",
+       "pageprops": {
+        "wikibase_item": "Q202444"
+       },
+       "description": "ім'я, що розрізняє людей у межах сім'ї",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-08-28T07:04:17Z",
+       "lastrevid": 47833286,
+       "length": 3299
+      },
+      {
+       "pageid": 1637341,
+       "ns": 0,
+       "title": "Mars, Incorporated",
+       "pageprops": {
+        "wikibase_item": "Q695087"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T16:50:17Z",
+       "lastrevid": 47731489,
+       "length": 12112
+      },
+      {
+       "pageid": 1738236,
+       "ns": 0,
+       "title": "Mars (манґа)",
+       "pageprops": {
+        "wikibase_item": "Q31333"
+       },
+       "description": "японська манґа",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-04T10:56:02Z",
+       "lastrevid": 46521020,
+       "length": 16521
+      },
+      {
+       "pageid": 1776725,
+       "ns": 0,
+       "title": "Mars (батончик)",
+       "pageprops": {
+        "wikibase_item": "Q31305"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-09T13:46:02Z",
+       "lastrevid": 45052075,
+       "length": 5215
+      },
+      {
+       "pageid": 1918830,
+       "ns": 0,
+       "title": "Ян Марс",
+       "pageprops": {
+        "wikibase_item": "Q20070978"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-25T03:57:01Z",
+       "lastrevid": 48886879,
+       "length": 4725
+      },
+      {
+       "pageid": 2078833,
+       "ns": 0,
+       "title": "Марс (Аургазинський район)",
+       "pageprops": {
+        "wikibase_item": "Q1052570"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-04T10:56:21Z",
+       "lastrevid": 38936965,
+       "length": 2741
+      },
+      {
+       "pageid": 2148714,
+       "ns": 0,
+       "title": "Барятінський район",
+       "pageprops": {
+        "wikibase_item": "Q1651099"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:05:14Z",
+       "lastrevid": 44082784,
+       "length": 4370
+      },
+      {
+       "pageid": 3016951,
+       "ns": 0,
+       "title": "Цілинний округ",
+       "pageprops": {
+        "wikibase_item": "Q3664260"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:06:05Z",
+       "lastrevid": 43937266,
+       "length": 15051
+      },
+      {
+       "pageid": 3024528,
+       "ns": 0,
+       "title": "Марс (Цілинний округ)",
+       "pageprops": {
+        "wikibase_item": "Q27581392"
+       },
+       "description": "населений пункт у Росії",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-04T10:57:27Z",
+       "lastrevid": 40675277,
+       "length": 2382
+      },
+      {
+       "pageid": 3331913,
+       "ns": 0,
+       "title": "Марс-75",
+       "pageprops": {
+        "wikibase_item": "Q77292979"
+       },
+       "description": "радянська довгохвильова фазова багаточастотна різницево-дальномірна радіонавігаційна система (РДРНС) з часовою селекцією сигналів",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:06:22Z",
+       "lastrevid": 47520895,
+       "length": 29155
+      },
+      {
+       "pageid": 3707222,
+       "ns": 0,
+       "title": "Марс (Кушнаренковський район)",
+       "pageprops": {
+        "wikibase_item": "Q1068497"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-04T10:58:05Z",
+       "lastrevid": 38936968,
+       "length": 2902
+      },
+      {
+       "pageid": 4056738,
+       "ns": 0,
+       "title": "Новгород-Сіверський район",
+       "pageprops": {
+        "wikibase_item": "Q103826268"
+       },
+       "description": "район в Чернігівській області (утворений в 2020 році)",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:06:46Z",
+       "lastrevid": 40822102,
+       "length": 7420
+      },
+      {
+       "pageid": 4445217,
+       "ns": 0,
+       "title": "Антоній Марс",
+       "pageprops": {
+        "wikibase_item": "Q9157089"
+       },
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-19T10:43:12Z",
+       "lastrevid": 40022765,
+       "length": 12995
+      },
+      {
+       "pageid": 4599454,
+       "ns": 0,
+       "title": "Марс (Калузька область)",
+       "pageprops": {
+        "wikibase_item": "Q21670754"
+       },
+       "description": "населений пункт у Росії",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:07:10Z",
+       "lastrevid": 38712814,
+       "length": 4877
+      },
+      {
+       "pageid": 4922127,
+       "ns": 0,
+       "title": "Кшиштоф Марс",
+       "pageprops": {
+        "wikibase_item": "Q120973619"
+       },
+       "description": "польський шляхтич",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-04T10:59:08Z",
+       "lastrevid": 41389460,
+       "length": 6619
+      },
+      {
+       "pageid": 4922275,
+       "ns": 0,
+       "title": "Софія Марс",
+       "pageprops": {
+        "wikibase_item": "Q116436646"
+       },
+       "description": "польська художниця та ілюстраторка",
+       "descriptionsource": "central",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-04T10:59:08Z",
+       "lastrevid": 48273389,
+       "length": 7248
+      }
+     ]
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=%D0%9C%D0%B0%D1%80%D1%81%D1%96%D0%B0%D0%BD%D1%81%D1%8C%D0%BA%D0%B0+%D0%BE%D1%80%D0%B1%D1%96%D1%82%D0%B0&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": []
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=%D0%9C%D0%B0%D1%80%D1%81&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": [
+      {
+       "logid": 18345018,
+       "ns": 0,
+       "title": "Марс",
+       "pageid": 80160,
+       "logpage": 80160,
+       "revid": 33865764,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Марс (значення)",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move_redir",
+       "user": "Dƶoxar",
+       "timestamp": "2021-11-23T10:56:06Z",
+       "comment": ""
+      },
+      {
+       "logid": 5409162,
+       "ns": 0,
+       "title": "Марс",
+       "pageid": 80160,
+       "logpage": 1758,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Марс (планета)",
+        "suppressredirect": true
+       },
+       "type": "move",
+       "action": "move_redir",
+       "user": "NickK",
+       "timestamp": "2015-12-14T13:05:02Z",
+       "comment": "було обговорення: [[Вікіпедія:Перейменування статей/Марс → Марс (планета)]]"
+      },
+      {
+       "logid": 5407682,
+       "ns": 0,
+       "title": "Марс",
+       "pageid": 80160,
+       "logpage": 80160,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Марс (значення)",
+        "suppressredirect": true
+       },
+       "type": "move",
+       "action": "move_redir",
+       "user": "Вальдимар",
+       "timestamp": "2015-12-14T08:49:33Z",
+       "comment": ""
+      },
+      {
+       "logid": 764981,
+       "ns": 0,
+       "title": "Марс",
+       "pageid": 80160,
+       "logpage": 968900,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Марс (планета)",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move_redir",
+       "user": "Deineka",
+       "timestamp": "2011-04-19T03:21:24Z",
+       "comment": ""
+      },
+      {
+       "logid": 751711,
+       "ns": 0,
+       "title": "Марс",
+       "pageid": 80160,
+       "logpage": 954686,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Марс (значення)",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move_redir",
+       "user": "Erud",
+       "timestamp": "2011-03-24T19:42:00Z",
+       "comment": ""
+      },
+      {
+       "logid": 36292,
+       "ns": 0,
+       "title": "Марс",
+       "pageid": 80160,
+       "logpage": 0,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Марс (планета)",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move_redir",
+       "user": "Ahonc",
+       "timestamp": "2007-05-29T10:44:06Z",
+       "comment": "є ще бог Марс"
+      },
+      {
+       "logid": 18131,
+       "ns": 0,
+       "title": "Марс",
+       "pageid": 80160,
+       "logpage": 0,
+       "params": {
+        "target_ns": 0,
+        "target_title": "Марс (міфологія)",
+        "suppressredirect": false
+       },
+       "type": "move",
+       "action": "move",
+       "user": "AS",
+       "timestamp": "2006-12-27T16:46:05Z",
+       "comment": ""
+      }
+     ]
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=%D0%9C%D0%B0%D1%80%D1%81+%28%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%BB%D0%BE%D0%B3%D1%96%D1%8F%29&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": []
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&lelimit=max&letitle=%D0%9E%D1%80%D0%B1%D1%96%D1%82%D0%B0+%D0%9C%D0%B0%D1%80%D1%81%D1%83&letype=move&list=logevents": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "limits": {
+     "logevents": 500
+    },
+    "query": {
+     "logevents": []
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=1758&prop=redirects&rdlimit=max&rdnamespace=0&rdprop=title": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "query": {
+     "pages": [
+      {
+       "pageid": 1758,
+       "ns": 0,
+       "title": "Марс (планета)",
+       "redirects": [
+        {
+         "ns": 0,
+         "title": "Марс (астрологія)"
+        },
+        {
+         "ns": 0,
+         "title": "Орбіта Марсу"
+        },
+        {
+         "ns": 0,
+         "title": "Марсіанська орбіта"
+        }
+       ]
+      }
+     ]
+    },
+    "limits": {
+     "redirects": 500
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&pageids=1758&prop=revisions&rvdir=newer&rvlimit=1&rvprop=timestamp": {
+   "status": 200,
+   "json": {
+    "continue": {
+     "rvcontinue": "20040326201446|1351",
+     "continue": "||"
+    },
+    "query": {
+     "pages": [
+      {
+       "pageid": 1758,
+       "ns": 0,
+       "title": "Марс (планета)",
+       "revisions": [
+        {
+         "timestamp": "2004-03-23T21:28:48Z"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "https://uk.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&ppprop=disambiguation%7Cwikibase_item&prop=info%7Cpageprops&redirects=1&titles=%D0%9C%D0%B0%D1%80%D1%81%7C%D0%9C%D0%B0%D1%80%D1%81+%28%D0%BF%D0%BB%D0%B0%D0%BD%D0%B5%D1%82%D0%B0%29": {
+   "status": 200,
+   "json": {
+    "batchcomplete": true,
+    "query": {
+     "pages": [
+      {
+       "pageid": 1758,
+       "ns": 0,
+       "title": "Марс (планета)",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-09-22T07:03:35Z",
+       "lastrevid": 48673828,
+       "length": 273759,
+       "pageprops": {
+        "wikibase_item": "Q111"
+       }
+      },
+      {
+       "pageid": 80160,
+       "ns": 0,
+       "title": "Марс",
+       "contentmodel": "wikitext",
+       "pagelanguage": "uk",
+       "pagelanguagehtmlcode": "uk",
+       "pagelanguagedir": "ltr",
+       "touched": "2026-08-24T11:56:31Z",
+       "lastrevid": 45214631,
+       "length": 3940,
+       "pageprops": {
+        "disambiguation": "",
+        "wikibase_item": "Q426315"
+       }
+      }
+     ]
+    }
+   }
+  },
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q111&languages=en%7Cuk&props=labels%7Cdescriptions%7Csitelinks&sitefilter=ukwiki": {
+   "status": 200,
+   "json": {
+    "entities": {
+     "Q111": {
+      "type": "item",
+      "id": "Q111",
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "Mars"
+       },
+       "uk": {
+        "language": "uk",
+        "value": "Марс"
+       }
+      },
+      "descriptions": {
+       "en": {
+        "language": "en",
+        "value": "fourth planet from the Solar System, tellurian and orange-red due to iron oxide"
+       },
+       "uk": {
+        "language": "uk",
+        "value": "четверта від Сонця та друга найменша (після Меркурія) планета в Сонячній системі"
+       }
+      },
+      "sitelinks": {
+       "ukwiki": {
+        "site": "ukwiki",
+        "title": "Марс (планета)",
+        "badges": [
+         "Q17437798"
+        ]
+       }
+      }
+     }
+    },
+    "success": 1
+   }
+  },
+  "https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json&language=uk&limit=10&search=%D0%9C%D0%B0%D1%80%D1%81&type=item&uselang=uk": {
+   "status": 200,
+   "json": {
+    "searchinfo": {
+     "search": "Марс"
+    },
+    "search": [
+     {
+      "id": "Q111",
+      "title": "Q111",
+      "pageid": 244,
+      "concepturi": "http://www.wikidata.org/entity/Q111",
+      "repository": "wikidata",
+      "url": "//www.wikidata.org/wiki/Q111",
+      "display": {
+       "label": {
+        "value": "Марс",
+        "language": "uk"
+       },
+       "description": {
+        "value": "четверта від Сонця та друга найменша (після Меркурія) планета в Сонячній системі",
+        "language": "uk"
+       }
+      },
+      "label": "Марс",
+      "description": "четверта від Сонця та друга найменша (після Меркурія) планета в Сонячній системі",
+      "match": {
+       "type": "label",
+       "language": "uk",
+       "text": "Марс"
+      }
+     },
+     {
+      "id": "Q112",
+      "title": "Q112",
+      "pageid": 245,
+      "concepturi": "http://www.wikidata.org/entity/Q112",
+      "repository": "wikidata",
+      "url": "//www.wikidata.org/wiki/Q112",
+      "display": {
+       "label": {
+        "value": "Марс",
+        "language": "uk"
+       },
+       "description": {
+        "value": "бог родючості, рослинності і дикої природи в античній міфології",
+        "language": "uk"
+       }
+      },
+      "label": "Марс",
+      "description": "бог родючості, рослинності і дикої природи в античній міфології",
+      "match": {
+       "type": "label",
+       "language": "uk",
+       "text": "Марс"
+      }
+     },
+     {
+      "id": "Q1116491",
+      "title": "Q1116491",
+      "pageid": 1063671,
+      "concepturi": "http://www.wikidata.org/entity/Q1116491",
+      "repository": "wikidata",
+      "url": "//www.wikidata.org/wiki/Q1116491",
+      "display": {
+       "label": {
+        "value": "Марс",
+        "language": "uk"
+       },
+       "description": {
+        "value": "муніципалітет у департаменті Луара, Франція",
+        "language": "uk"
+       }
+      },
+      "label": "Марс",
+      "description": "муніципалітет у департаменті Луара, Франція",
+      "match": {
+       "type": "label",
+       "language": "uk",
+       "text": "Марс"
+      }
+     },
+     {
+      "id": "Q137393",
+      "title": "Q137393",
+      "pageid": 139136,
+      "concepturi": "http://www.wikidata.org/entity/Q137393",
+      "repository": "wikidata",
+      "url": "//www.wikidata.org/wiki/Q137393",
+      "display": {
+       "label": {
+        "value": "Марс",
+        "language": "uk"
+       },
+       "description": {
+        "value": "муніципалітет у департаменті Ардеш, Франція",
+        "language": "uk"
+       }
+      },
+      "label": "Марс",
+      "description": "муніципалітет у департаменті Ардеш, Франція",
+      "match": {
+       "type": "label",
+       "language": "uk",
+       "text": "Марс"
+      }
+     },
+     {
+      "id": "Q31348",
+      "title": "Q31348",
+      "pageid": 34294,
+      "concepturi": "http://www.wikidata.org/entity/Q31348",
+      "repository": "wikidata",
+      "url": "//www.wikidata.org/wiki/Q31348",
+      "display": {
+       "label": {
+        "value": "Марс",
+        "language": "uk"
+       },
+       "description": {
+        "value": "колишній муніципалітет у департаменті Гар, Франція",
+        "language": "uk"
+       }
+      },
+      "label": "Марс",
+      "description": "колишній муніципалітет у департаменті Гар, Франція",
+      "match": {
+       "type": "label",
+       "language": "uk",
+       "text": "Марс"
+      }
+     },
+     {
+      "id": "Q1185928",
+      "title": "Q1185928",
+      "pageid": 1131001,
+      "concepturi": "http://www.wikidata.org/entity/Q1185928",
+      "repository": "wikidata",
+      "url": "//www.wikidata.org/wiki/Q1185928",
+      "display": {
+       "label": {
+        "value": "Марс",
+        "language": "uk"
+       },
+       "description": {
+        "value": "місто, США, штат Пенсильванія",
+        "language": "uk"
+       }
+      },
+      "label": "Марс",
+      "description": "місто, США, штат Пенсильванія",
+      "match": {
+       "type": "label",
+       "language": "uk",
+       "text": "Марс"
+      }
+     },
+     {
+      "id": "Q31316",
+      "title": "Q31316",
+      "pageid": 34262,
+      "concepturi": "http://www.wikidata.org/entity/Q31316",
+      "repository": "wikidata",
+      "url": "//www.wikidata.org/wiki/Q31316",
+      "display": {
+       "label": {
+        "value": "Марс",
+        "language": "uk"
+       },
+       "description": {
+        "value": "програма",
+        "language": "uk"
+       }
+      },
+      "label": "Марс",
+      "description": "програма",
+      "match": {
+       "type": "label",
+       "language": "uk",
+       "text": "Марс"
+      }
+     },
+     {
+      "id": "Q16876471",
+      "title": "Q16876471",
+      "pageid": 18477310,
+      "concepturi": "http://www.wikidata.org/entity/Q16876471",
+      "repository": "wikidata",
+      "url": "//www.wikidata.org/wiki/Q16876471",
+      "display": {
+       "label": {
+        "value": "Марс",
+        "language": "uk"
+       },
+       "description": {
+        "value": "прізвище (Mars)",
+        "language": "uk"
+       }
+      },
+      "label": "Марс",
+      "description": "прізвище (Mars)",
+      "match": {
+       "type": "label",
+       "language": "uk",
+       "text": "Марс"
+      }
+     },
+     {
+      "id": "Q31325",
+      "title": "Q31325",
+      "pageid": 34271,
+      "concepturi": "http://www.wikidata.org/entity/Q31325",
+      "repository": "wikidata",
+      "url": "//www.wikidata.org/wiki/Q31325",
+      "display": {
+       "label": {
+        "value": "марс",
+        "language": "uk"
+       },
+       "description": {
+        "value": "platform at the upper end of a mast on a traditional square rigged ship",
+        "language": "en"
+       }
+      },
+      "label": "марс",
+      "description": "platform at the upper end of a mast on a traditional square rigged ship",
+      "match": {
+       "type": "label",
+       "language": "uk",
+       "text": "марс"
+      }
+     },
+     {
+      "id": "Q27888038",
+      "title": "Q27888038",
+      "pageid": 29596402,
+      "concepturi": "http://www.wikidata.org/entity/Q27888038",
+      "repository": "wikidata",
+      "url": "//www.wikidata.org/wiki/Q27888038",
+      "display": {
+       "label": {
+        "value": "Марс",
+        "language": "uk"
+       },
+       "description": {
+        "value": "National Geographic TV miniseries",
+        "language": "en"
+       }
+      },
+      "label": "Марс",
+      "description": "National Geographic TV miniseries",
+      "match": {
+       "type": "label",
+       "language": "uk",
+       "text": "Марс"
+      }
+     }
+    ],
+    "search-continue": 10,
+    "success": 1
+   }
+  }
+ }
+}

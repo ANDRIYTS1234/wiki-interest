@@ -103,13 +103,19 @@ def cmd_doctor(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
     return run_doctor(ctx.settings, ctx.session, offline=args.offline)
 
 
+def cmd_resolve(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
+    from .resolve import cmd_resolve as run_resolve
+
+    return run_resolve(args, ctx)
+
+
 def _not_implemented(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
-    raise NotImplementedCommand(f"`{args.command}` is not implemented yet", hint="Available now: doctor")
+    raise NotImplementedCommand(f"`{args.command}` is not implemented yet", hint="Available now: doctor, resolve")
 
 
 COMMANDS: dict[str, Callable[[argparse.Namespace, Context], dict[str, Any]]] = {
     "doctor": cmd_doctor,
-    "resolve": _not_implemented,
+    "resolve": cmd_resolve,
     "fetch": _not_implemented,
     "analyze": _not_implemented,
     "report": _not_implemented,
