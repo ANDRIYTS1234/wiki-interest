@@ -1,0 +1,269 @@
+{
+ "skill_name": "wiki-interest",
+ "description": "Wikipedia pageview analysis for product and market decisions. Use this skill, not memory or web search, whenever someone asks whether interest in a topic is growing or falling, especially when it will drive a decision — adding a course, topic or feature to an app; choosing which language, country or market to launch in or localize for; checking a claim like \"interest in X exploded\" before investing; comparing interest across Wikipedia language editions; or preparing a short one-page PDF report for investors, a cofounder or the team. Keywords — Wikipedia/Вікіпедія/вікі, pageviews/перегляди, interest/інтерес, trend/тренд, language editions/мовні розділи, localization/локалізація, market/ринок, курс, звіт. Not for explaining a topic, writing or translating Wikipedia articles, counting articles or dumps, or analyzing the user's own data (CSV, DAU, sales).",
+ "summary": {
+  "model": "claude-haiku-4-5-20251001",
+  "runs_per_query": 3,
+  "should_trigger": "4/24",
+  "should_not_trigger_false_positives": "0/24",
+  "queries_passed": "9/16",
+  "positive_control": "3/3"
+ },
+ "results": [
+  {
+   "query": "Чи варто нам перекладати застосунок румунською? Подивись, чи росте інтерес до медитації в румунській вікіпедії.",
+   "should_trigger": true,
+   "triggers": 1,
+   "runs": 3,
+   "trigger_rate": 0.3333333333333333,
+   "pass": false,
+   "first_tools": [
+    "Bash",
+    "ToolSearch",
+    "Skill*"
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Порівняй, як змінювалась популярність теми криптовалют у німецькій і французькій Wikipedia за п'ять років.",
+   "should_trigger": true,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": false,
+   "first_tools": [
+    "ToolSearch",
+    "ToolSearch",
+    "ToolSearch"
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Which of these markets looks most promising for a cooking course — Italian, Spanish or Polish readers? Use Wikipedia pageview data.",
+   "should_trigger": true,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": false,
+   "first_tools": [
+    "ToolSearch",
+    "ToolSearch",
+    "WebFetch"
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Нам кажуть, що інтерес до шахів вибухнув. Перевір це за переглядами Вікіпедії, перш ніж ми вкладемо гроші в курс.",
+   "should_trigger": true,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": false,
+   "first_tools": [
+    "ToolSearch",
+    "WebFetch",
+    "ToolSearch"
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Зроби односторінковий PDF-звіт про інтерес до йоги в чеській вікі, щоб я скинув інвесторам.",
+   "should_trigger": true,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": false,
+   "first_tools": [
+    "Bash",
+    "Bash",
+    "Bash"
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Хочемо запустити подкаст про стоїцизм. Подивись, у яких вікіпедіях — німецькій, французькій, італійській чи іспанській — інтерес до стоїцизму росте найшвидше.",
+   "should_trigger": true,
+   "triggers": 2,
+   "runs": 3,
+   "trigger_rate": 0.6666666666666666,
+   "pass": true,
+   "first_tools": [
+    "WebFetch",
+    "Skill*",
+    "Skill*"
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "is interest in pickleball actually growing in spanish and portuguese wikipedia or is it just hype? need a quick one-pager for my cofounder",
+   "should_trigger": true,
+   "triggers": 1,
+   "runs": 3,
+   "trigger_rate": 0.3333333333333333,
+   "pass": false,
+   "first_tools": [
+    "ToolSearch",
+    "Skill*",
+    "WebSearch"
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Ми робимо застосунок для вивчення японської. Які мовні аудиторії Вікіпедії найбільше цікавляться Японією і японською мовою — подивись польську, турецьку і в'єтнамську.",
+   "should_trigger": true,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": false,
+   "first_tools": [
+    "Bash",
+    "Glob",
+    "Agent"
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Що таке інтервальне голодування і чи воно корисне?",
+   "should_trigger": false,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": true,
+   "first_tools": [
+    null,
+    null,
+    null
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Скільки статей зараз в українській Вікіпедії?",
+   "should_trigger": false,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": true,
+   "first_tools": [
+    "ToolSearch",
+    "WebSearch",
+    "WebFetch"
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Напиши статтю для Вікіпедії про історію шахів.",
+   "should_trigger": false,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": true,
+   "first_tools": [
+    "Artifact",
+    "Artifact",
+    "Artifact"
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Проаналізуй цей CSV з продажами нашого застосунку і побудуй графік.",
+   "should_trigger": false,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": true,
+   "first_tools": [
+    null,
+    null,
+    null
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Як працює алгоритм PageRank у Google?",
+   "should_trigger": false,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": true,
+   "first_tools": [
+    null,
+    null,
+    null
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Завантаж дамп української Вікіпедії і порахуй, скільки статей у кожній категорії.",
+   "should_trigger": false,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": true,
+   "first_tools": [
+    "Bash",
+    "PowerShell",
+    null
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Ось CSV з DAU нашого застосунку за два роки; порівняй Польщу з Чехією і побудуй графік.",
+   "should_trigger": false,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": true,
+   "first_tools": [
+    null,
+    null,
+    null
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Переклади українською статтю англійської Вікіпедії про інтервальне голодування.",
+   "should_trigger": false,
+   "triggers": 0,
+   "runs": 3,
+   "trigger_rate": 0.0,
+   "pass": true,
+   "first_tools": [
+    "ToolSearch",
+    "WebFetch",
+    "ToolSearch"
+   ],
+   "timeouts": 0,
+   "positive_control": false
+  },
+  {
+   "query": "Use the wiki-interest skill to check whether interest in chess is growing in German Wikipedia.",
+   "should_trigger": true,
+   "triggers": 3,
+   "runs": 3,
+   "trigger_rate": 1.0,
+   "pass": true,
+   "first_tools": [
+    "Skill*",
+    "Skill*",
+    "Skill*"
+   ],
+   "timeouts": 0,
+   "positive_control": true
+  }
+ ]
+}
