@@ -1,0 +1,172 @@
+# Сценарії для порівняння «без навички / з навичкою».
+#
+# Кожен сценарій запускається в новій порожній пісочниці, новою сесією,
+# тією самою моделлю й налаштуваннями, з тим самим preamble і запитом.
+# Для A, B, D є baseline (evals/baseline/*.md); для C і E baseline
+# знімається в той самий день, що й прогін із навичкою.
+#
+# Поля перевірки:
+#   id        — стабільний ідентифікатор для таблиць порівняння
+#   check     — що має бути правдою в результаті
+#   evidence  — де це видно: answer (текст відповіді), pdf, transcript
+#               (виклики інструментів), artifacts (metrics.json, appendix.md)
+#   critical  — true, якщо провал змінює висновок або рекомендацію
+#   baseline  — результат чистого baseline-прогону: pass | fail | partial | n/a
+#
+# Оцінка прогону: кількість pass серед critical і серед усіх; окремо
+# фіксуються час, кількість кроків агента і токени.
+
+preamble: |
+  Ти допомагаєш засновнику B2C-продукту ухвалити рішення на основі даних.
+  У тебе є bash, Python і доступ до інтернету. Можеш встановлювати пакети.
+  Якщо просять звіт — зроби PDF на одну сторінку в ./out/.
+
+common_checks:
+  - id: X1
+    check: Агент використав CLI навички (resolve, fetch, analyze, report), а не писав власні скрипти завантаження й розрахунків.
+    evidence: transcript
+    critical: true
+    baseline: n/a
+  - id: X2
+    check: Кожне число у відповіді й PDF є в metrics.json; немає вписаних вручну чисел.
+    evidence: pdf, answer, artifacts
+    critical: true
+    baseline: fail
+  - id: X3
+    check: Кожен прапорець якості з metrics.json відображено у висновку або застереженнях звіту.
+    evidence: pdf, artifacts
+    critical: true
+    baseline: n/a
+  - id: X4
+    check: Зовнішні твердження (події, зміни політики Wikimedia, причини спаду) або мають джерело, або позначені як гіпотеза.
+    evidence: answer, pdf
+    critical: false
+    baseline: fail
+  - id: X5
+    check: Висновок про тему зроблено з кошика статей, а не з однієї статті; склад кошика й виключення з причинами описано в appendix.
+    evidence: artifacts
+    critical: true
+    baseline: fail
+  - id: X6
+    check: Жодної мовчазної заміни статті; відсутні статті й замінники названі явно.
+    evidence: answer, pdf, transcript
+    critical: true
+    baseline: partial
+  - id: X7
+    check: Перед завантаженням, що триває понад ~2 хвилини, агент попередив користувача про тривалість (dry-run).
+    evidence: transcript
+    critical: false
+    baseline: n/a
+  - id: X8
+    check: PDF рівно на одну сторінку, кирилиця й діакритика відображаються, немає великих порожніх зон і дубльованих чисел.
+    evidence: pdf
+    critical: false
+    baseline: partial
+
+scenarios:
+
+  - id: A
+    name: Довіра до тренду в одній мові
+    baseline_protocol: evals/baseline/A-astronomy.md
+    turns:
+      - |
+        Ми думаємо додати курс з астрономії до освітнього застосунку. Чи зростає
+        інтерес до цієї теми в україномовній Wikipedia, і наскільки цьому
+        зростанню можна довіряти?
+    expected_after_coaching: >
+      Інтерес не зростає; падіння стійке до складу кошика, редиректів і бази.
+      Падіння 2026 до 2025 — близько −37% без аномальних січня–лютого, а не −50%.
+      Відносно інших природничих тем астрономія падає повільніше (відношення
+      індексів ~2,4× з інтервалом ~2,0–3,0).
+    checks:
+      - {id: A1, check: "Відповідь: інтерес не зростає.", evidence: answer, critical: true, baseline: pass}
+      - {id: A2, check: "Сторінки неоднозначності (Марс, Місяць, Юпітер…) не потрапили в кошик замість статей про об'єкти.", evidence: artifacts, critical: true, baseline: pass}
+      - {id: A3, check: "Перегляди редиректів підсумовано; перейменування (Нейтронна зірка → Нейтронна зоря) враховано.", evidence: artifacts, critical: false, baseline: fail}
+      - {id: A4, check: "Є нормалізація на трафік uk.wikipedia.", evidence: pdf, critical: true, baseline: pass}
+      - {id: A5, check: "Порівнюються однакові місяці різних років (сезонність прибрано).", evidence: pdf, critical: true, baseline: pass}
+      - {id: A6, check: "Виявлено аномальні січень–лютий 2024 і 2025 та показано зміну без них.", evidence: pdf, artifacts, critical: true, baseline: fail}
+      - {id: A7, check: "Є перевірка стійкості кошика: без однієї статті, без найбільших, медіана по статтях.", evidence: artifacts, critical: true, baseline: fail}
+      - {id: A8, check: "Порівняння з контрольною групою через індекси, а не відношення сум кошиків різного розміру.", evidence: pdf, critical: true, baseline: fail}
+      - {id: A9, check: "Базу до травня 2020 позначено прапорцем про відсутність класу automated; показано альтернативну базу.", evidence: pdf, artifacts, critical: false, baseline: partial}
+      - {id: A10, check: "Довіра до напряму й до величини оцінені окремо.", evidence: pdf, critical: false, baseline: pass}
+
+  - id: B
+    name: Порівняння двох мов, у одній немає статті
+    baseline_protocol: evals/baseline/B-fasting.md
+    turns:
+      - |
+        Порівняй зростання інтересу до інтервального голодування в польськомовній
+        та чеськомовній Wikipedia за останні два роки.
+    expected_after_coaching: >
+      У pl.wiki немає статті про інтервальне голодування; пряме порівняння
+      неможливе. На порівнянному кошику суміжних тем Польща втрачає інтерес
+      швидше (близько −41% проти −33% з поправкою на трафік) і довше (з 2022).
+      Чеське падіння ІГ здебільшого повторює загальний спад теми; без разових
+      сплесків воно близько −43%, а не −54%.
+    checks:
+      - {id: B1, check: "Відсутність польської статті встановлено через Wikidata і сказано прямо.", evidence: answer, transcript, critical: true, baseline: pass}
+      - {id: B2, check: "Відсутність статті подано як прогалину Wikipedia, а не як відсутність попиту.", evidence: answer, critical: true, baseline: pass}
+      - {id: B3, check: "Замінник (якщо використано) позначено як нееквівалентний і не порівнюється з чеською статтею напряму.", evidence: pdf, critical: true, baseline: partial}
+      - {id: B4, check: "Мови порівнюються на кошику тих самих Wikidata-сутностей в обох мовах.", evidence: artifacts, critical: true, baseline: fail}
+      - {id: B5, check: "Рекомендація щодо порівняння: польська аудиторія втрачає інтерес до теми швидше, ніж чеська.", evidence: answer, critical: true, baseline: fail}
+      - {id: B6, check: "Сплеск 14.04.2025 визначено як людський і показано чутливість зміни без нього.", evidence: pdf, artifacts, critical: true, baseline: fail}
+      - {id: B7, check: "Кожна завантажена серія або використана, або пояснено, чому відкинута.", evidence: artifacts, critical: false, baseline: fail}
+      - {id: B8, check: "Є довга історія: тема після піку, а не новий спад; позначено, що чеську статтю створено 2020 року.", evidence: pdf, critical: false, baseline: fail}
+      - {id: B9, check: "Низькі обсяги переглядів позначено як обмеження довіри.", evidence: pdf, critical: false, baseline: pass}
+
+  - id: D
+    name: Хибна передумова, три мови
+    baseline_protocol: evals/baseline/D-chess.md
+    turns:
+      - |
+        Інтерес до шахів за останні роки дуже виріс, тому ми думаємо запустити
+        шаховий курс для німецько-, іспано- та португаломовних користувачів.
+        Перевір за даними Wikipedia, чи варто це робити.
+    expected_after_coaching: >
+      Зростання не підтверджено; сплеск листопада 2020 — разова подія. На панелі
+      статей, що існують з базового року, частка шахів у трафіку проти 2019:
+      DE ≈ +24%, ES ≈ +1%, PT ≈ −3%. Ростуть лише статті про гравців; навчальні
+      статті в ES і PT падають і абсолютно, і як частка. Тестувати попит
+      варто з DE, а не з ES.
+    checks:
+      - {id: D1, check: "Передумову засновника перевірено й не прийнято.", evidence: answer, critical: true, baseline: pass}
+      - {id: D2, check: "Статті про правила — «Leyes del ajedrez» і «Leis do xadrez», а не редиректи «Reglas…/Regras…».", evidence: artifacts, critical: true, baseline: fail}
+      - {id: D3, check: "Відсутність німецької статті про правила сказано явно; немає заміни на «Schachbrett» чи іншу статтю.", evidence: answer, artifacts, critical: true, baseline: fail}
+      - {id: D4, check: "Висновок зроблено з панелі шахових статей, а не з однієї головної статті.", evidence: artifacts, critical: true, baseline: fail}
+      - {id: D5, check: "Статті, створені після базового року (Гукеш, Chess.com, Lichess), не дають «зростання від нуля».", evidence: artifacts, critical: true, baseline: n/a}
+      - {id: D6, check: "Рекомендація: з трьох ринків найстабільніший DE; тестувати попит починати з нього.", evidence: answer, critical: true, baseline: fail}
+      - {id: D7, check: "Висновок «глядацький, а не навчальний інтерес» позначено як гіпотезу.", evidence: pdf, critical: false, baseline: fail}
+      - {id: D8, check: "Вибір базового року пояснено; показано щонайменше дві бази.", evidence: pdf, critical: false, baseline: fail}
+      - {id: D9, check: "Формулювання в тексті узгоджені з таблицею (немає «далі падають» при −3%).", evidence: pdf, critical: false, baseline: fail}
+      - {id: D10, check: "Жоден запит не втрачено через 429 без явного повідомлення.", evidence: transcript, critical: true, baseline: fail}
+
+  - id: C
+    name: Кілька мов, тема без однієї статті, рекомендація аудиторій
+    baseline_protocol: null   # baseline знімається разом із прогоном з навичкою
+    turns:
+      - |
+        Ми створюємо застосунок для вивчення мов. Порівняй інтерес до вивчення
+        англійської в українській, польській, турецькій і в'єтнамській Wikipedia
+        та підготуй короткий звіт: які аудиторії варто дослідити наступними й чому?
+    checks:
+      - {id: C1, check: "Тему «вивчення англійської» представлено кошиком статей, погодженим із користувачем або явно описаним; не однією статтею «Англійська мова».", evidence: transcript, artifacts, critical: true, baseline: n/a}
+      - {id: C2, check: "Кошик складається з тих самих Wikidata-сутностей у всіх мовах; відсутні статті названо по мовах.", evidence: artifacts, critical: true, baseline: n/a}
+      - {id: C3, check: "Мови порівнюються за нормалізованими показниками й індексами, а не за абсолютними переглядами розділів різного розміру.", evidence: pdf, critical: true, baseline: n/a}
+      - {id: C4, check: "Є ранжування аудиторій із рівнем довіри для кожної і причинами.", evidence: pdf, critical: true, baseline: n/a}
+      - {id: C5, check: "Сказано, що інтерес до статей не дорівнює готовності платити, і запропоновано прямі перевірки попиту.", evidence: pdf, critical: false, baseline: n/a}
+
+  - id: E
+    name: Повторний і пов'язаний запит
+    baseline_protocol: null
+    turns:
+      - |
+        Чи зростає інтерес до пермакультури в українській, словацькій і литовській
+        Wikipedia?
+      - |
+        А тепер додай латиську і подивись за три роки.
+    checks:
+      - {id: E1, check: "Відсутні статті в малих розділах названо явно; низькі обсяги позначено.", evidence: answer, critical: true, baseline: n/a}
+      - {id: E2, check: "На другому кроці агент змінив analysis.json і перезапустив, а не почав аналіз з нуля.", evidence: transcript, critical: true, baseline: n/a}
+      - {id: E3, check: "На другому кроці fetch завантажив лише нове (латиська мова і додатковий період); решта з кешу.", evidence: transcript, critical: true, baseline: n/a}
+      - {id: E4, check: "Друга відповідь пояснює, що змінилось у висновках після зміни припущень.", evidence: answer, critical: false, baseline: n/a}
+      - {id: E5, check: "Звіт оновлено, а не створено поруч суперечливий другий.", evidence: artifacts, critical: false, baseline: n/a}
