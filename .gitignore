@@ -7,3 +7,4 @@ build/
 dist/
 .wiki-interest-cache/
 wiki-interest-out/
+demo/
