@@ -143,7 +143,9 @@ def test_cli_analyze_stdout_one_line_per_basket_language(synthetic, tmp_path, ca
     line = next(l for l in out["summary"] if l.startswith("target/uk window"))
     for part in ("down", "index_norm", "share_change", "direction high", "magnitude high", "vs 2021", "flags:"):
         assert part in line
-    assert len(json.dumps(out, ensure_ascii=False).encode("utf-8")) < 4000
+    assert len(json.dumps(out, ensure_ascii=False).encode("utf-8")) < 6000  # includes placeholders[] for 2 baskets x 2 langs
+    assert out["placeholders"]["target.uk.window.change_norm"] == "{target.uk.window.change_norm:pct}"
+    assert out["placeholders"]["target.uk.window.index_norm_ci"] == "{target.uk.window.index_norm_ci:ci}"
     first = (tmp_path / "out" / "metrics.json").read_bytes()
     assert main(argv) == 0
     capsys.readouterr()

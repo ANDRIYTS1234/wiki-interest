@@ -43,15 +43,15 @@ class MediaWiki:
     def __init__(self, http: HttpClient) -> None:
         self.http = http
 
-    def query(self, lang: str, **params: Any) -> dict[str, Any]:
+    def query(self, lang: str, *, ttl_days: float | None = None, **params: Any) -> dict[str, Any]:
         full = {"action": "query", "format": "json", "formatversion": 2, **params}
-        return self.http.get_json_cached(api_url(lang), full, validate=_check_api_error)
+        return self.http.get_json_cached(api_url(lang), full, validate=_check_api_error, ttl_days=ttl_days)
 
-    def query_all(self, lang: str, **params: Any) -> list[dict[str, Any]]:
+    def query_all(self, lang: str, *, ttl_days: float | None = None, **params: Any) -> list[dict[str, Any]]:
         """Follow `continue` until the result set is complete."""
         out, cont = [], {}
         while True:
-            data = self.query(lang, **params, **cont)
+            data = self.query(lang, ttl_days=ttl_days, **params, **cont)
             out.append(data)
             if "continue" not in data:
                 return out
@@ -89,10 +89,11 @@ class MediaWiki:
                 titles.extend(r["title"] for r in page.get("redirects", []))
         return sorted(set(titles))
 
-    def move_log(self, lang: str, title: str) -> list[dict[str, Any]]:
-        """Move log entries whose source title is `title`."""
+    def move_log(self, lang: str, title: str, *, ttl_days: float) -> list[dict[str, Any]]:
+        """Move log entries whose source title is `title`. Move logs change rarely: cached longer
+        than other MediaWiki queries (see config.Settings.move_log_ttl_days)."""
         events: list[dict[str, Any]] = []
-        for data in self.query_all(lang, list="logevents", letype="move", letitle=title, lelimit="max"):
+        for data in self.query_all(lang, list="logevents", letype="move", letitle=title, lelimit="max", ttl_days=ttl_days):
             events.extend(data.get("query", {}).get("logevents", []))
         return events
 

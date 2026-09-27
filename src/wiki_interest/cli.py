@@ -81,6 +81,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = add("resolve", "find a topic's articles in the requested languages")
     p.add_argument("--input", required=True, help="resolve.json")
+    p.add_argument(
+        "--moves",
+        choices=("fast", "full"),
+        default="fast",
+        help="full: also check the move log of the qualifier-stripped base title, to find a former "
+        "title that was later reused by a different page (slower; fast is the default)",
+    )
 
     p = add("fetch", "download daily pageviews for all baskets into the cache")
     p.add_argument("--spec", required=True, help="analysis.json")
@@ -91,6 +98,12 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("all", "none"),
         default="all",
         help="none: main titles only (quick first pass; analyze flags REDIRECTS_SKIPPED)",
+    )
+    p.add_argument(
+        "--moves",
+        choices=("fast", "full"),
+        default="fast",
+        help="passed to resolve when fetch has to resolve an item on the fly (see `resolve --help`)",
     )
 
     p = add("analyze", "compute metrics.json from cached pageviews")
@@ -128,8 +141,14 @@ def cmd_analyze(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
     return run_analyze(args, ctx)
 
 
+def cmd_report(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
+    from .report import cmd_report as run_report
+
+    return run_report(args, ctx)
+
+
 def _not_implemented(args: argparse.Namespace, ctx: Context) -> dict[str, Any]:
-    raise NotImplementedCommand(f"`{args.command}` is not implemented yet", hint="Available now: doctor, resolve, fetch, analyze")
+    raise NotImplementedCommand(f"`{args.command}` is not implemented yet", hint="Available now: doctor, resolve, fetch, analyze, report")
 
 
 COMMANDS: dict[str, Callable[[argparse.Namespace, Context], dict[str, Any]]] = {
@@ -137,7 +156,7 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, Context], dict[str, Any]]] = {
     "resolve": cmd_resolve,
     "fetch": cmd_fetch,
     "analyze": cmd_analyze,
-    "report": _not_implemented,
+    "report": cmd_report,
 }
 
 

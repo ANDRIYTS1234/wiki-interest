@@ -50,6 +50,8 @@ PV_API = "https://wikimedia.org/api/rest_v1/metrics/pageviews"
 AGGREGATE = "#aggregate"  # article key for project totals; "#" cannot occur in a page title
 RESULT_FILE = "fetch_result.json"
 MAX_LISTED = 20  # stdout lists at most this many missing series; the file has all
+UNRESOLVED_MIN_PAGEVIEW_REQUESTS = 3  # main title: user/all-access, automated/all-access, user/desktop
+UNRESOLVED_RESOLVE_REQUESTS = 1  # at least one MediaWiki call to resolve the title/qid
 
 
 def project_of(lang: str) -> str:
@@ -378,7 +380,11 @@ def cmd_fetch(args: Any, ctx: Any) -> dict[str, Any]:
 
     if args.dry_run:
         plan = build_plan(spec, cache, None, args.redirects)
-        needed = plan.requests_needed
+        # Unresolved items: their redirects/former titles are unknown, so only a lower bound is
+        # possible: 3 pageview requests for the main title once resolved, plus one MediaWiki call
+        # to resolve it. Real resolution (fetch without --dry-run) often costs more (Wikidata
+        # entities, redirects, move log), so this estimate always undershoots when items are unresolved.
+        needed = plan.requests_needed + len(plan.unresolved) * (UNRESOLVED_MIN_PAGEVIEW_REQUESTS + UNRESOLVED_RESOLVE_REQUESTS)
         out = {
             "dry_run": True,
             "data_as_of": plan.data_as_of,
@@ -393,14 +399,15 @@ def cmd_fetch(args: Any, ctx: Any) -> dict[str, Any]:
             "unresolved": plan.unresolved,
         }
         if plan.unresolved:
+            per_item = UNRESOLVED_MIN_PAGEVIEW_REQUESTS + UNRESOLVED_RESOLVE_REQUESTS
             out["note"] = (
-                f"{len(plan.unresolved)} item/language pairs are not resolved yet; their redirects are unknown, so "
-                "requests_needed is a lower bound (each article needs at least 3 requests plus resolve). "
-                "Run `resolve` first for an exact estimate."
+                f"{len(plan.unresolved)} item/language pairs are not resolved yet; requests_needed includes a "
+                f"lower-bound estimate for them ({per_item} requests each), but real resolution (redirects, "
+                "former titles, Wikidata) usually costs more. Run `resolve` first for an exact estimate."
             )
         return out
 
-    resolver = Resolver(ctx.http, cache)
+    resolver = Resolver(ctx.http, cache, moves=args.moves)
     plan = build_plan(spec, cache, resolver, args.redirects)
     cached = sum(1 for s in plan.series if not s.gaps and not s.skipped)
     skipped = sum(1 for s in plan.series if s.skipped)

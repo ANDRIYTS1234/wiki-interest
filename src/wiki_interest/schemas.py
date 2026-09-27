@@ -115,6 +115,14 @@ def parse_resolve_request(data: Any) -> ResolveRequest:
 
 BASKET_ROLES = ("target", "context", "control")
 BASKET_ID_RE = re.compile(r"[a-z][a-z0-9_]*")
+# metrics.json top-level keys (see analyze/__init__.py's run_analysis): a basket id can never
+# equal one of these, so a narrative placeholder like "compare.x.y" is unambiguous — report's
+# get_path() resolves an unprefixed path through "baskets" only when its first segment is a
+# known basket id, and otherwise walks the real top-level key.
+RESERVED_BASKET_IDS = {
+    "tool_version", "data_as_of", "question", "spec", "params", "confidence_rules",
+    "basket_info", "baskets", "compare", "flags", "data_problems", "unused_series",
+}
 PAGEVIEWS_START = "2015-07"
 BASKET_ITEM_FORMS = (
     '{"qid": "Q..."} | {"lang": "pl", "title": "...", "proxy_for": "Q..."(optional)}; '
@@ -244,6 +252,8 @@ def parse_analysis_spec(data: Any) -> AnalysisSpec:
         bid = b.get("id")
         if not isinstance(bid, str) or not BASKET_ID_RE.fullmatch(bid):
             raise InputError(f"{where}.id must match [a-z][a-z0-9_]*, got {bid!r}", hint="It is used in placeholders like {target.uk.window.change}")
+        if bid in RESERVED_BASKET_IDS:
+            raise InputError(f"{where}.id {bid!r} is reserved", hint=f"Reserved ids: {sorted(RESERVED_BASKET_IDS)}")
         if bid in {x.id for x in baskets}:
             raise InputError(f"{where}.id {bid!r} is used twice")
         role = b.get("role")

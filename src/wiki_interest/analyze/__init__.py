@@ -1,14 +1,20 @@
 """`analyze`: metrics.json from cached pageviews (SPEC §8). No network.
 
-metrics.json layout (placeholders in narrative.json use these paths):
-  baskets.<basket>.<lang>.window                  current window vs the same months a year earlier
-  baskets.<basket>.<lang>.baselines.<year>        current window vs the same months of <year>
-  baskets.<basket>.<lang>.groups.<group>.window | .baselines.<year>
-  baskets.<basket>.<lang>.confidence.window | .baselines.<year>
-  baskets.<basket>.<lang>.history | seasonality | spikes | anomaly_months | bot_months
+metrics.json layout. On disk, basket data is namespaced under a top-level "baskets" key (so a
+basket id such as "compare" or "flags" can never collide with the file's other top-level keys),
+but narrative.json placeholders drop that prefix — `report.narrative.get_path` resolves a path
+starting with a known basket id through "baskets" transparently, so a placeholder is written
+exactly as `<basket>.<lang>.<block>.<metric>`:
+  <basket>.<lang>.window                  current window vs the same months a year earlier
+  <basket>.<lang>.baselines.<year>        current window vs the same months of <year>
+  <basket>.<lang>.groups.<group>.window | .baselines.<year>
+  <basket>.<lang>.confidence.window | .baselines.<year>
+  <basket>.<lang>.history | seasonality | spikes | anomaly_months | bot_months
   compare.<basket>.<lang1>_vs_<lang2>.window | .baselines.<year>   same QIDs in both languages
   compare.<basket1>_vs_<basket2>.<lang>.window | .baselines.<year> target vs control/context
   flags[]  (code, severity, detail, basket, lang, scope)
+The `placeholders` field of the stdout summary lists ready-to-copy strings for the main numbers
+of each claim, e.g. "{target.uk.window.change_norm:pct}", so an agent never has to type a path.
 Floats are rounded to 6 significant digits and keys sorted: same inputs give the same bytes.
 """
 
@@ -295,6 +301,38 @@ def _claim_line(comp: dict[str, Any], conf: dict[str, Any]) -> str:
     )
 
 
+def build_placeholders(metrics: dict[str, Any]) -> dict[str, str]:
+    """Ready-to-copy `{path:format}` strings for the main numbers of each claim, keyed by a short
+    label such as "target.uk.window.change_norm". narrative.json numbers should come from here
+    rather than being typed by hand (the validator rejects any path, so a wrong one is caught
+    either way, but copying avoids the round-trip)."""
+    out: dict[str, str] = {}
+
+    def add(prefix: str, comp: dict[str, Any]) -> None:
+        if comp.get("status") != "ok":
+            return
+        out[f"{prefix}.index_norm"] = f"{{{prefix}.index_norm:x}}"
+        if comp["index_norm_ci"] is not None:
+            out[f"{prefix}.index_norm_ci"] = f"{{{prefix}.index_norm_ci:ci}}"
+        out[f"{prefix}.change_norm"] = f"{{{prefix}.change_norm:pct}}"
+        if comp["share_change"] is not None:
+            out[f"{prefix}.share_change"] = f"{{{prefix}.share_change:pct}}"
+
+    for bid, langs in metrics["baskets"].items():
+        for lang, block in langs.items():
+            add(f"{bid}.{lang}.window", block["window"])
+            for year in block["baselines"]:
+                add(f"{bid}.{lang}.baselines.{year}", block["baselines"][year])
+    for name, entry in metrics["compare"].items():
+        for sub, r in entry.items():
+            key = f"compare.{name}.{sub}"
+            w = r.get("window", {})
+            if w.get("status") == "ok":
+                out[f"{key}.window.ratio"] = f"{{{key}.window.ratio:x}}"
+                out[f"{key}.window.ratio_ci"] = f"{{{key}.window.ratio_ci:ci}}"
+    return out
+
+
 def summarize(metrics: dict[str, Any], path: Path) -> dict[str, Any]:
     lines = []
     for bid, langs in metrics["baskets"].items():
@@ -321,8 +359,9 @@ def summarize(metrics: dict[str, Any], path: Path) -> dict[str, Any]:
         "summary": lines,
         "compare": comps,
         "flags_total": len(metrics["flags"]),
-        "hint": "Details, panels, exclusions and reasons are in metrics_file. In narrative.json use placeholders "
-        "such as {target.uk.window.change_norm:pct}; never type numbers.",
+        "placeholders": build_placeholders(metrics),
+        "hint": "Details, panels, exclusions and reasons are in metrics_file. In narrative.json use the "
+        "placeholders[] strings as-is; never type numbers.",
     }
 
 

@@ -17,11 +17,11 @@ from wiki_interest.resolve import Resolver, base_title, choose_candidate, lookup
 from wiki_interest.schemas import parse_resolve_request
 
 
-def run_case(name, settings, cache=None):
+def run_case(name, settings, cache=None, moves="fast"):
     fx = load_fixture("resolve", name)
     session = replay_session(fx)
     http = HttpClient(settings, session, cache, sleep=lambda s: None)
-    result = Resolver(http, cache).run(parse_resolve_request(fx["input"]))
+    result = Resolver(http, cache, moves=moves).run(parse_resolve_request(fx["input"]))
     return {r["id"]: r for r in result["items"]}, result, session
 
 
@@ -49,7 +49,9 @@ def test_uk_mars_is_disambiguation_with_planet_candidate(settings):
 
 
 def test_uk_mars_planet_former_title_is_not_a_redirect(settings):
-    items, _, _ = run_case("mars_uk", settings)
+    # This former title ("Марс" is now a disambiguation page, not a redirect) is only found with
+    # --moves full: it needs the extra qualifier-stripped-base-title candidate (see resolve.py).
+    items, _, _ = run_case("mars_uk", settings, moves="full")
     planet = items["uk:Марс (планета)"]
     assert planet["status"] == "resolved" and planet["qid"] == "Q111"
     entry = planet["langs"]["uk"]
@@ -58,6 +60,16 @@ def test_uk_mars_planet_former_title_is_not_a_redirect(settings):
     # fetch must count it only up to moved_at.
     assert entry["former_titles"] == [{"title": "Марс", "moved_at": "2015-12-14T13:05:02Z", "is_redirect": False}]
     assert entry["created"] and entry["length"] > 0
+    assert entry["moves_mode"] == "full"
+
+
+def test_default_fast_moves_misses_reused_former_title(settings):
+    # Documents the fast-mode tradeoff the appendix warns about: without --moves full, a former
+    # title that is no longer a redirect (reused by another page) is not found.
+    items, _, _ = run_case("mars_uk", settings)  # default: moves="fast"
+    entry = items["uk:Марс (планета)"]["langs"]["uk"]
+    assert entry["former_titles"] == []
+    assert entry["moves_mode"] == "fast"
 
 
 def test_uk_mars_query_is_not_auto_selected(settings):

@@ -111,6 +111,7 @@ class Settings:
     retry_after_cap: float = 120.0
     timeout: float = 30.0
     http_ttl_days: int = 7
+    move_log_ttl_days: int = 30  # move logs change rarely; a longer TTL avoids re-querying them often
 
     @property
     def cache_path(self) -> Path:

@@ -56,6 +56,10 @@ def choose_candidate(query: str, results: list[dict[str, Any]]) -> int | None:
     return 0 if exact == [0] else None
 
 
+MOVES_MODES = ("fast", "full")
+DEFAULT_MOVES = "fast"
+
+
 def _empty_entry(requested_title: str | None) -> dict[str, Any]:
     return {
         "status": "missing",
@@ -70,14 +74,19 @@ def _empty_entry(requested_title: str | None) -> dict[str, Any]:
         "search_hits": [],
         "candidates": [],
         "warnings": [],
+        "moves_mode": None,
     }
 
 
 class Resolver:
-    def __init__(self, http: HttpClient, cache: Cache | None = None) -> None:
+    def __init__(self, http: HttpClient, cache: Cache | None = None, *, moves: str = DEFAULT_MOVES) -> None:
+        if moves not in MOVES_MODES:
+            raise ValueError(f"moves must be one of {MOVES_MODES}, got {moves!r}")
         self.mw = MediaWiki(http)
         self.wd = Wikidata(http)
         self.cache = cache
+        self.moves = moves
+        self.move_log_ttl_days = http.settings.move_log_ttl_days
 
     # -- articles ----------------------------------------------------------------------
 
@@ -109,6 +118,7 @@ class Resolver:
                     entry["created"] = self.mw.first_revision(lang, page["pageid"])
                     entry["redirects"] = self.mw.redirects(lang, page["pageid"])
                     entry["former_titles"] = self._former_titles(lang, page, entry["redirects"])
+                    entry["moves_mode"] = self.moves
                 out[requested] = entry
         return out
 
@@ -135,18 +145,30 @@ class Resolver:
     def _former_titles(self, lang: str, page: dict[str, Any], redirects: list[str]) -> list[dict[str, Any]]:
         """Titles this page was moved away from, with the latest move date.
 
-        The move log can only be searched by source title, so we check every redirect to the page
-        plus the base title without a "(qualifier)" (covers "Марс" -> "Марс (планета)", where the
-        old title was later reused). A move belongs to this page when its `logpage` is this page id;
-        very old entries have logpage 0 and are matched by target title instead.
-        Limitation: a former title that is neither a redirect now nor the base title is not found.
+        The move log can only be searched by source title (the API has no batch query across
+        titles), so every candidate costs one MediaWiki request. We always check every current
+        redirect to the page: that is where former titles are usually found (e.g. uk «Нейтронна
+        зірка» -> «Нейтронна зоря», SPEC §6), and it's needed anyway to sum the redirect's views.
+        In "full" mode we add one more candidate: the base title without a "(qualifier)", which
+        catches the rarer case where the old title was *reused* by a different page and so is no
+        longer a redirect here at all (uk «Марс» -> «Марс (планета)», also SPEC §6 — «Марс» is now
+        a disambiguation page). "fast" mode (the default) skips that extra candidate: cheaper, but
+        it misses a former title that is not currently a redirect to this page. When this happens,
+        fetch still finds and sums the redirect's views as a `role="redirect"` series over the whole
+        range — only the `moved_at` cutoff for a *reused* old title is unavailable, so at most the
+        days since the actual reuse are attributed to the wrong former title. `resolve --moves full`
+        (also settable on `fetch`/`analyze` calls that resolve on demand) checks the base title too.
+        A move belongs to this page when its `logpage` is this page id; very old entries have
+        logpage 0 and are matched by target title instead.
+        Limitation: a former title that is neither a checked redirect now nor (in full mode) the
+        base title is not found.
         """
         pageid, title = page["pageid"], page["title"]
-        candidates = list(redirects)
         base = base_title(title)
-        if base != title and base not in candidates:
+        candidates = list(redirects)
+        if self.moves == "full" and base != title and base not in candidates:
             candidates.append(base)
-        events = {t: self.mw.move_log(lang, t) for t in candidates}
+        events = {t: self.mw.move_log(lang, t, ttl_days=self.move_log_ttl_days) for t in candidates}
         found: dict[str, str] = {}
         known = {title}
         for _ in range(2):  # the second pass links logpage-0 moves through titles found in the first
@@ -351,9 +373,14 @@ def lookup_article(
 # -- CLI -----------------------------------------------------------------------------------
 
 
-def summarize(result: dict[str, Any], result_file: Path) -> dict[str, Any]:
+def summarize(result: dict[str, Any], result_file: Path, moves: str) -> dict[str, Any]:
     """Compact stdout view; the full result is in resolve_result.json."""
     items, attention = [], []
+    if moves == "fast":
+        attention.append(
+            "moves=fast (default): former titles that are no longer a redirect (a reused old name, "
+            "like uk «Марс») may be missing. Rerun with --moves full for a complete check."
+        )
     for rec in result["items"]:
         s: dict[str, Any] = {"id": rec["id"], "status": rec["status"], "qid": rec["qid"], "label": rec["label"]}
         if rec.get("auto_selected"):
@@ -396,13 +423,14 @@ def cmd_resolve(args: Any, ctx: Any) -> dict[str, Any]:
     from .schemas import load_json_file, parse_resolve_request
 
     request = parse_resolve_request(load_json_file(args.input, "resolve input"))
-    result = Resolver(ctx.http, ctx.cache).run(request)
+    result = Resolver(ctx.http, ctx.cache, moves=args.moves).run(request)
     workdir: Path = ctx.settings.workdir
     workdir.mkdir(parents=True, exist_ok=True)
     out_file = workdir / RESULT_FILE
     full = {"tool_version": __version__, **result}
     out_file.write_text(json.dumps(full, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    summary = summarize(result, out_file)
+    summary = summarize(result, out_file, args.moves)
+    summary["moves"] = args.moves
     summary["requests"] = ctx.http.requests_made
     summary["cache_hits"] = ctx.http.cache_hits
     return summary

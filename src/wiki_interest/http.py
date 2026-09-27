@@ -174,14 +174,18 @@ class HttpClient:
         params: Mapping[str, Any] | None = None,
         *,
         validate: Callable[[Any], None] | None = None,
+        ttl_days: float | None = None,
     ) -> Any:
         """For MediaWiki/Wikidata: served from http_cache within the TTL, otherwise fetched and stored.
 
         `validate` raises on API-level errors (HTTP 200 with an error body) so they are never cached.
+        `ttl_days` overrides the default (settings.http_ttl_days) for endpoints that change rarely,
+        such as page move logs.
         """
         key = canonical_url(url, params)
+        ttl = self.settings.http_ttl_days if ttl_days is None else ttl_days
         if self.cache is not None:
-            body = self.cache.http_get(key, self.settings.http_ttl_days)
+            body = self.cache.http_get(key, ttl)
             if body is not None:
                 self.cache_hits += 1
                 return json.loads(body)

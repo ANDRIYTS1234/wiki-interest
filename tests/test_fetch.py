@@ -128,8 +128,8 @@ def test_dry_run_makes_no_requests(capsys, tmp_path):
 
     code, out, _ = run(capsys, tmp_path, step2, offline, "--dry-run")
     assert code == 0 and out["dry_run"] is True
-    assert out["unresolved"] and "lower bound" in out["note"]
-    assert out["requests_needed"] == 2  # only the aggregates are known before resolve
+    assert out["unresolved"] and "lower-bound" in out["note"]
+    assert out["requests_needed"] == 6  # 2 aggregates known + 1 unresolved item x (3 pageviews + 1 resolve)
     # No runs yet: the measured default for a User-Agent with a contact (project URL).
     assert out["estimate_basis"].startswith("default") and out["seconds_per_request"] == 0.8
     assert "warning" not in out
