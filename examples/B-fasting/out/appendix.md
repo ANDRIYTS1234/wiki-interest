@@ -14,8 +14,9 @@
 - **Дані:** Wikimedia Pageviews API, перегляди людей (`user`), щодня, з 2016-01; агрегати розділу для
   нормалізації. Перегляди редиректів і колишніх назв додано до основної назви (для часток ботів/пристроїв —
   лише основна стаття).
-- **Вікно:** останні 24 повних місяців проти тих самих календарних місяців роком раніше (прибирає
-  сезонність); бази з `baselines` порівнюють ті самі місяці в кожному вказаному році.
+- **Вікно:** останні 24 міс. проти попередніх 24 (повні місяці; база зсунута на 2 ціл. р., тож не перекривається з вікном
+  і порівнює ті самі календарні місяці — сезонність прибрано); бази з `baselines` порівнюють ті самі місяці
+  в кожному вказаному році.
 - **Панель:** статті, створені до початку базового періоду, з повними даними й не менш ніж
   `min_monthly_views`=30 переглядів на місяць у середньому за базовий період.
 - **index_norm:** середнє геометричне по статтях панелі відношення (поточне+1)/(попереднє+1), поділене на
@@ -63,9 +64,9 @@
 |---|---|---|---|
 | NEW_ARTICLE | info | target.cs | created after history_start: Přerušovaný půst |
 | PANEL_SMALL | warning | target.cs.baseline:2022 | no estimate (empty_panel); panel has 0 articles |
-| ANOMALY_MONTHS | warning | target.cs.window | anomalous months inside the compared periods: 2025-04, 2025-04, 2025-09, 2025-12 |
+| ANOMALY_MONTHS | warning | target.cs.window | anomalous months inside the compared periods: 2025-04, 2025-09, 2025-12 |
 | BOT_RECLASSIFICATION_2025 | info | target.cs.window | compared periods include March-August 2025, when Wikimedia reclassified bot traffic |
-| BOT_SUSPECT | warning | target.cs.window | automated jumps or bot-like spikes in: 2025-05, 2025-05, 2026-06 |
+| BOT_SUSPECT | warning | target.cs.window | automated jumps or bot-like spikes in: 2025-05, 2026-06 |
 | PANEL_SMALL | warning | target.cs.window | 1 articles in the panel (min_panel 5) |
 | ARTICLE_MISSING | warning | target.pl | no article in pl.wikipedia for: Q1666254 |
 | PROXY_USED | warning | target.pl | non-equivalent substitutes: pl:Głodówka lecznicza (for Q1666254) |
@@ -73,16 +74,15 @@
 | BOT_SUSPECT | warning | target.pl.baseline:2022 | automated jumps or bot-like spikes in: 2025-07, 2025-09, 2026-06, 2026-07 |
 | PANEL_SMALL | warning | target.pl.baseline:2022 | 1 articles in the panel (min_panel 5) |
 | BOT_RECLASSIFICATION_2025 | info | target.pl.window | compared periods include March-August 2025, when Wikimedia reclassified bot traffic |
-| BOT_SUSPECT | warning | target.pl.window | automated jumps or bot-like spikes in: 2025-07, 2025-07, 2025-09, 2026-06, 2026-07 |
-| LOW_VOLUME | warning | target.pl.window | median monthly views of the panel in the base period are below low_volume_month |
+| BOT_SUSPECT | warning | target.pl.window | automated jumps or bot-like spikes in: 2025-07, 2025-09, 2026-06, 2026-07 |
 | PANEL_SMALL | warning | target.pl.window | 1 articles in the panel (min_panel 5) |
 
 ## Стійкість (change_norm за варіантом)
 
 | basket | lang | window | loo_min | loo_max | no_top3 | median | no_spikes | no_anomalies |
 |---|---|---|---|---|---|---|---|---|
-| target | cs | −31% | — | — | — | −31% | −35% | −34% |
-| target | pl | −15% | — | — | — | −15% | −15% | — |
+| target | cs | −61% | — | — | — | −61% | −66% | −66% |
+| target | pl | −25% | — | — | — | −25% | −25% | — |
 
 ## Джерела
 

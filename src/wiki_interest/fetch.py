@@ -38,7 +38,7 @@ from .config import (
     SECONDS_PER_REQUEST_WITHOUT_CONTACT,
     latest_full_month,
 )
-from .dates import add_months, day, first_day, gaps, iso, last_day
+from .dates import add_months, day, first_day, gaps, iso, last_day, window_shift_years
 from .errors import IncompleteDataError, InputError, RateLimitError, WikiInterestError
 from .http import HttpClient, parse_json
 from .resolve import Resolver, lookup_article
@@ -71,16 +71,18 @@ def data_as_of(spec: AnalysisSpec) -> str:
 
 
 def start_month(spec: AnalysisSpec, end_month: str) -> str:
-    """Earliest month needed: history_start, the same months a year before the window, and the same
-    months in each baseline year (the window shifted back so that it ends in year Y)."""
+    """Earliest month needed: history_start, the base of the window (the same months
+    window_shift_years earlier, never overlapping the window), and the same months in each baseline
+    year (the window shifted back so that it ends in year Y)."""
     end_year = int(end_month[:4])
-    late = [y for y in spec.baselines if y >= end_year]
-    if late:
+    shift = window_shift_years(spec.window_months)
+    overlapping = [y for y in spec.baselines if end_year - y < shift]
+    if overlapping:
         raise InputError(
-            f"baselines {late} are not before the window's year {end_year}",
-            hint="A baseline is an earlier year whose same months are compared with the window",
+            f"baselines {overlapping} overlap the {spec.window_months}-month window ending {end_month}",
+            hint=f"A baseline must end at least {shift} year(s) before the window's end year: use {end_year - shift} or earlier",
         )
-    shifts = [1] + [end_year - y for y in spec.baselines]
+    shifts = [shift] + [end_year - y for y in spec.baselines]
     candidates = [spec.history_start] + [add_months(end_month, -(12 * k + spec.window_months - 1)) for k in shifts]
     return max(min(candidates), f"{PAGEVIEWS_START:%Y-%m}")
 

@@ -345,3 +345,39 @@ def test_partial_data_flag_and_article_left_out(tmp_path):
     assert "PARTIAL_DATA" in {f["code"] for f in flags_of(m, basket="target", lang="uk")}
     excluded = {e["title"]: e["reason"] for e in m["baskets"]["target"]["uk"]["window"]["panel"]["excluded"]}
     assert excluded["Стаття 2"] == "partial_data"
+
+
+@pytest.mark.parametrize(
+    "months, base, current",
+    [
+        (12, ("2023-01", "2023-12"), ("2024-01", "2024-12")),  # the previous 12 months
+        (24, ("2021-01", "2022-12"), ("2023-01", "2024-12")),  # the previous 24, no shared year
+        (18, ("2021-07", "2022-12"), ("2023-07", "2024-12")),  # same months 2 years back: a 6-month gap
+    ],
+)
+def test_window_base_never_overlaps(tmp_path, months, base, current):
+    """A Haiku run with a 24-month window showed the base (same 24 months a year earlier) sharing a
+    year with the window, which understated the change. The base shift is ceil(months/12) years."""
+    path = synth.build(tmp_path)
+    with Cache(path) as cache:
+        m = run_analysis(parse_analysis_spec(synth.spec(window={"months": months, "end": "2024-12"}, baselines=[])), cache)
+    w = m["baskets"]["target"]["uk"]["window"]
+    assert w["periods"] == {"base": list(base), "current": list(current)}
+    assert w["periods"]["base"][1] < w["periods"]["current"][0]
+    assert m["spec"]["window"]["base_shift_years"] == -(-months // 12)
+
+
+def test_baseline_overlapping_the_window_is_an_input_error(tmp_path):
+    path = synth.build(tmp_path)
+    with Cache(path) as cache, pytest.raises(InputError) as ei:
+        # 24-month window ending 2024-12 covers 2023-2024; a 2023 baseline would overlap it.
+        run_analysis(parse_analysis_spec(synth.spec(window={"months": 24, "end": "2024-12"}, baselines=[2023])), cache)
+    assert "overlap" in ei.value.message and "2022 or earlier" in ei.value.hint
+
+
+def test_window_labels_show_the_real_shift():
+    from wiki_interest.dates import window_label
+
+    assert window_label(24, 2, "en") == "last 24 months vs the previous 24"
+    assert window_label(12, 1, "uk") == "останні 12 міс. проти попередніх 12"
+    assert window_label(18, 2, "en") == "last 18 months vs the same months 2 years earlier"

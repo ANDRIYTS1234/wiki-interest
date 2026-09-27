@@ -8,6 +8,7 @@ from typing import Any
 
 from .. import __version__
 from ..analyze.quality import CONFIDENCE_RULES
+from ..dates import window_label, window_shift_years
 from .fmt import fmt_ci, fmt_pct, fmt_x
 
 KNOWN_LIMITATIONS_EN = """\
@@ -38,8 +39,9 @@ METHODOLOGY_EN = """\
 - **Data:** Wikimedia Pageviews API, human (`user`) views, daily, from {history_start}; project totals for
   normalization. Redirect and former-title views are added to the main title (main-title series only for
   bot/device shares).
-- **Window:** last {months} complete months vs the same calendar months one year earlier (removes
-  seasonality); baseline years compare the same months again in each listed year.
+- **Window:** {window_label} (complete months; the base is {shift} whole year(s) back, so it never
+  overlaps the window and the same calendar months are compared — no seasonality); baseline years
+  compare the same months again in each listed year.
 - **Panel:** articles created before the base period, with complete data and at least
   `min_monthly_views`={min_monthly_views} average monthly views in the base period.
 - **index_norm:** geometric mean over panel articles of (current+1)/(base+1), divided by the same ratio of
@@ -62,8 +64,9 @@ METHODOLOGY_UK = """\
 - **Дані:** Wikimedia Pageviews API, перегляди людей (`user`), щодня, з {history_start}; агрегати розділу для
   нормалізації. Перегляди редиректів і колишніх назв додано до основної назви (для часток ботів/пристроїв —
   лише основна стаття).
-- **Вікно:** останні {months} повних місяців проти тих самих календарних місяців роком раніше (прибирає
-  сезонність); бази з `baselines` порівнюють ті самі місяці в кожному вказаному році.
+- **Вікно:** {window_label} (повні місяці; база зсунута на {shift} ціл. р., тож не перекривається з вікном
+  і порівнює ті самі календарні місяці — сезонність прибрано); бази з `baselines` порівнюють ті самі місяці
+  в кожному вказаному році.
 - **Панель:** статті, створені до початку базового періоду, з повними даними й не менш ніж
   `min_monthly_views`={min_monthly_views} переглядів на місяць у середньому за базовий період.
 - **index_norm:** середнє геометричне по статтях панелі відношення (поточне+1)/(попереднє+1), поділене на
@@ -80,6 +83,10 @@ METHODOLOGY_UK = """\
 - **Правила довіри:**
 {confidence_rules}
 """
+
+
+def _shift(spec: dict[str, Any]) -> int:
+    return spec["window"].get("base_shift_years") or window_shift_years(spec["window"]["months"])
 
 
 def _confidence_rules_text(lang: str) -> str:
@@ -185,6 +192,8 @@ def build_appendix(metrics: dict[str, Any], report_lang: str) -> str:
     methodology = template.format(
         history_start=sp["history_start"],
         months=sp["window"]["months"],
+        shift=_shift(sp),
+        window_label=window_label(sp["window"]["months"], _shift(sp), report_lang),
         min_monthly_views=metrics["params"]["min_monthly_views"]["value"],
         bootstrap=metrics["params"]["bootstrap"]["value"],
         seed=metrics["params"]["seed"]["value"],

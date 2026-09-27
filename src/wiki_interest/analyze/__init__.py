@@ -5,7 +5,7 @@ basket id such as "compare" or "flags" can never collide with the file's other t
 but narrative.json placeholders drop that prefix — `report.narrative.get_path` resolves a path
 starting with a known basket id through "baskets" transparently, so a placeholder is written
 exactly as `<basket>.<lang>.<block>.<metric>`:
-  <basket>.<lang>.window                  current window vs the same months a year earlier
+  <basket>.<lang>.window                  current window vs its base: the same months ceil(N/12) years earlier
   <basket>.<lang>.baselines.<year>        current window vs the same months of <year>
   <basket>.<lang>.groups.<group>.window | .baselines.<year>
   <basket>.<lang>.confidence.window | .baselines.<year>
@@ -31,6 +31,7 @@ import pandas as pd
 
 from .. import __version__
 from ..cache import Cache
+from ..dates import window_shift_years
 from ..schemas import AnalysisSpec, load_json_file, parse_analysis_spec
 from .metrics import M, Member, comparison, history, period_months, ratio_of_indices, seasonality, sign
 from .params import describe_params, resolve_params
@@ -135,7 +136,8 @@ def run_analysis(spec: AnalysisSpec, cache: Cache, workdir: Path | None = None) 
     ds: Dataset = load_dataset(spec, cache, workdir)
     end = M(ds.data_as_of, freq="M")
     n = spec.window_months
-    periods: dict[str, tuple[list[M], list[M]]] = {"window": (period_months(end, n, 1), period_months(end, n))}
+    shift = window_shift_years(n)  # base never overlaps the window (see dates.window_shift_years)
+    periods: dict[str, tuple[list[M], list[M]]] = {"window": (period_months(end, n, shift), period_months(end, n))}
     for y in spec.baselines:
         periods[str(y)] = (period_months(end, n, end.year - y), period_months(end, n))
     first_month = M(ds.start.strftime("%Y-%m"), freq="M")
@@ -259,7 +261,7 @@ def run_analysis(spec: AnalysisSpec, cache: Cache, workdir: Path | None = None) 
             "question": spec.question,
             "spec": {
                 "langs": list(spec.langs),
-                "window": {"months": n, "end": ds.data_as_of},
+                "window": {"months": n, "end": ds.data_as_of, "base_shift_years": shift},
                 "history_start": spec.history_start,
                 "baselines": list(spec.baselines),
                 "range": {"start": ds.start.isoformat(), "end": ds.end.isoformat()},

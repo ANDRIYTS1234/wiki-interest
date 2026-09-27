@@ -36,6 +36,22 @@ def last_day(month: str) -> dt.date:
     return dt.date(y, m, calendar.monthrange(y, m)[1])
 
 
+def window_shift_years(months: int) -> int:
+    """Whole years between a window and its base: at least the window's length, so the base never
+    overlaps the window (a 24-month window a year back would share a year with it and understate the
+    change), and a multiple of 12 months, so the same calendar months are compared (no seasonality)."""
+    return -(-months // 12)
+
+
+def window_label(months: int, shift_years: int, lang: str) -> str:
+    """"last 24 months vs the previous 24" / "last 18 months vs the same months 2 years earlier"."""
+    if shift_years * 12 == months:
+        return {"en": f"last {months} months vs the previous {months}",
+                "uk": f"останні {months} міс. проти попередніх {months}"}[lang]
+    return {"en": f"last {months} months vs the same months {shift_years} year{'s' if shift_years > 1 else ''} earlier",
+            "uk": f"останні {months} міс. проти тих самих місяців {shift_years} р. тому"}[lang]
+
+
 def iso(d: dt.date) -> str:
     return d.isoformat()
 

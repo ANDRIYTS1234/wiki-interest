@@ -12,6 +12,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import matplotlib.ticker as mticker  # noqa: E402
 
+from ..dates import window_label, window_shift_years
 from . import fonts
 
 TARGET_COLOR = "#2f6fed"
@@ -38,7 +39,7 @@ def _basket_labels(basket_info: dict[str, Any]) -> dict[str, str]:
     return {bid: info["label"] for bid, info in basket_info.items()}
 
 
-def history_and_window_chart(basket_info: dict[str, Any], baskets: dict[str, Any], lang: str, out_path: Path, report_lang: str) -> None:
+def history_and_window_chart(basket_info: dict[str, Any], baskets: dict[str, Any], lang: str, out_path: Path, report_lang: str, window_text: str) -> None:
     """One language: long-history line for each basket (left) + window index_norm bars (right)."""
     _style()
     labels = _basket_labels(basket_info)
@@ -74,7 +75,7 @@ def history_and_window_chart(basket_info: dict[str, Any], baskets: dict[str, Any
         ax_bar.bar(xs_bar, vals, color=colors, width=0.5)
         ax_bar.errorbar(xs_bar, vals, yerr=errs_arr, fmt="none", ecolor="#222222", capsize=3, linewidth=1)
         ax_bar.axhline(1.0, color="#888888", linewidth=0.8, linestyle="--")
-    ax_bar.set_title("This window vs a year earlier" if report_lang == "en" else "Це вікно проти року тому", fontsize=9)
+    ax_bar.set_title(window_text[:1].upper() + window_text[1:], fontsize=9)
     ax_bar.set_ylabel("index_norm")
     plt.setp(ax_bar.get_xticklabels(), rotation=20, ha="right", fontsize=8)
 
@@ -83,7 +84,7 @@ def history_and_window_chart(basket_info: dict[str, Any], baskets: dict[str, Any
     plt.close(fig)
 
 
-def basket_indices_chart(basket_info: dict[str, Any], baskets: dict[str, Any], langs: list[str], out_path: Path, report_lang: str) -> None:
+def basket_indices_chart(basket_info: dict[str, Any], baskets: dict[str, Any], langs: list[str], out_path: Path, report_lang: str, window_text: str) -> None:
     """Several languages: basket index_norm bars grouped by language, one colour per basket."""
     _style()
     labels = _basket_labels(basket_info)
@@ -111,9 +112,7 @@ def basket_indices_chart(basket_info: dict[str, Any], baskets: dict[str, Any], l
     ax.set_xticklabels(langs)
     ax.set_ylabel("index_norm")
     ax.set_title(
-        "Basket index by language (this window vs a year earlier)"
-        if report_lang == "en"
-        else "Індекс кошика за мовою (це вікно проти року тому)",
+        ("Basket index by language, " if report_lang == "en" else "Індекс кошика за мовою, ") + window_text,
         fontsize=9,
     )
     ax.legend(fontsize=7, frameon=False)
@@ -125,8 +124,10 @@ def basket_indices_chart(basket_info: dict[str, Any], baskets: dict[str, Any], l
 def render_chart(metrics: dict[str, Any], out_path: Path, report_lang: str) -> Path:
     basket_info, baskets = metrics["basket_info"], metrics["baskets"]
     langs = metrics["spec"]["langs"]
+    w = metrics["spec"]["window"]
+    window_text = window_label(w["months"], w.get("base_shift_years") or window_shift_years(w["months"]), report_lang)
     if len(langs) == 1:
-        history_and_window_chart(basket_info, baskets, langs[0], out_path, report_lang)
+        history_and_window_chart(basket_info, baskets, langs[0], out_path, report_lang, window_text)
     else:
-        basket_indices_chart(basket_info, baskets, langs, out_path, report_lang)
+        basket_indices_chart(basket_info, baskets, langs, out_path, report_lang, window_text)
     return out_path
