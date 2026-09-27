@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+from pathlib import Path
 import math
 
 import numpy as np
@@ -381,3 +382,23 @@ def test_window_labels_show_the_real_shift():
     assert window_label(24, 2, "en") == "last 24 months vs the previous 24"
     assert window_label(12, 1, "uk") == "останні 12 міс. проти попередніх 12"
     assert window_label(18, 2, "en") == "last 18 months vs the same months 2 years earlier"
+
+
+def test_thin_target_basket_is_called_out_and_capped(tmp_path, capsys):
+    """Haiku built a one-article target: analyze must say so and not claim a confident direction."""
+    path = synth.build(tmp_path)
+    spec = synth.spec(langs=["uk"])
+    spec["baskets"][0]["items"] = [{"qid": "Q101"}, {"qid": "Q102"}]
+    spec_file = tmp_path / "thin.json"
+    spec_file.write_text(json.dumps(spec, ensure_ascii=False), encoding="utf-8")
+    assert main(["--cache-dir", str(path.parent), "--workdir", str(tmp_path / "out"), "analyze", "--spec", str(spec_file)]) == 0
+    out = json.loads(capsys.readouterr()[0])
+    note = next(a for a in out["attention"] if a.startswith("target/uk"))
+    assert "2 comparable article(s)" in note and "add articles" in note
+    m = json.loads(Path(out["metrics_file"]).read_text(encoding="utf-8"))
+    conf = m["baskets"]["target"]["uk"]["confidence"]
+    assert conf["window"]["direction"] == "low"
+    assert any("capped at low" in r for r in conf["window"]["reasons"])
+    assert all(c["direction"] == "low" for c in conf["baselines"].values())
+    # the control basket is not a target: no such note for it
+    assert not any(a.startswith("control/") for a in out["attention"])

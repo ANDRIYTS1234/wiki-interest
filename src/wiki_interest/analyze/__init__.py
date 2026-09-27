@@ -110,6 +110,25 @@ def _claim_flags(comp: dict[str, Any], params: dict[str, Any], anomalies: set[M]
     return out
 
 
+MIN_TARGET_PANEL = 3  # fewer comparable articles in a target basket: no conclusion about the topic
+
+
+def _cap_thin_target(block: dict[str, Any]) -> None:
+    """A target basket with fewer than MIN_TARGET_PANEL comparable articles is one article, not a
+    topic (Haiku runs built a target of one article and a four-article basket): every claim's
+    direction confidence is capped at low, with the reason."""
+    claims = [("window", block["window"], block["confidence"]["window"])]
+    claims += [(y, block["baselines"][y], block["confidence"]["baselines"][y]) for y in block["baselines"]]
+    for _, comp, conf in claims:
+        n = comp["panel"]["n"]
+        if n < MIN_TARGET_PANEL:
+            if conf.get("direction") != "low":
+                conf["direction"] = "low"
+            conf.setdefault("reasons", []).append(
+                f"direction capped at low: the target basket has {n} comparable article(s), fewer than {MIN_TARGET_PANEL}"
+            )
+
+
 def _claims(members: list[Member], section: pd.Series, periods: dict[str, tuple[list[M], list[M]]], params: dict[str, Any],
             key: str, anomalies: set[M], bots: set[M], bot_spikes: set[M], extra_flags: list[dict[str, Any]], **where: Any) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """window + baselines comparisons, their flags and confidence."""
@@ -199,6 +218,8 @@ def run_analysis(spec: AnalysisSpec, cache: Cache, workdir: Path | None = None) 
             bot_spike_set = {M(s["date"][:7], freq="M") for s in spikes if s["class"] == "bot_suspect"}
 
             block, claim_flags = _claims(members, section, periods, params, f"{basket.id}/{lang}", anomaly_set, bot_set, bot_spike_set, base_flags, **where)
+            if basket.role == "target":
+                _cap_thin_target(block)
             groups = sorted({m.group for m in members if m.group})
             block["groups"] = {}
             for g in groups:
@@ -380,6 +401,16 @@ def summarize(metrics: dict[str, Any], path: Path) -> dict[str, Any]:
             parts.append("flags: " + (", ".join(codes) if codes else "none"))
             lines.append("; ".join(parts))
     comps, attention = [], []
+    for bid, langs in metrics["baskets"].items():
+        if metrics["basket_info"][bid]["role"] != "target":
+            continue
+        for lang, block in langs.items():
+            n = block["window"]["panel"]["n"]
+            if n < MIN_TARGET_PANEL:
+                attention.append(
+                    f"{bid}/{lang}: target basket has {n} comparable article(s) — add articles before drawing "
+                    "conclusions (5–20 articles of the topic itself; subtopics as groups inside it)"
+                )
     for name, entry in metrics["compare"].items():
         for sub, r in entry.items():
             w = r.get("window", {})
