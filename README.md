@@ -67,6 +67,24 @@ HTTP is mocked at the session level with responses recorded from the real APIs
 (`tests/record_fixtures.py`, not run in CI). `tests/test_e2e_offline.py` runs analyze → report on
 the demo snapshot with every network call forbidden and checks the PDF has exactly one page.
 
+## Evals
+
+`evals/scenarios.yaml` lists scenarios A–E with checks (critical or not) and the result of a
+baseline run without the skill; `evals/baseline/` has the protocols. `evals/run_agent.py` is a
+minimal agent loop over OpenRouter with one `shell` tool, to run the same scenario with and
+without the skill on a cheap model:
+
+```bash
+export OPENROUTER_API_KEY=...
+uv run evals/run_agent.py --scenario B --mode skill    --model anthropic/claude-haiku-4.5
+uv run evals/run_agent.py --scenario B --mode baseline --model anthropic/claude-haiku-4.5
+```
+
+Each run writes `evals/runs/<utc>_<scenario>_<mode>_<model>/`: `events.jsonl` (every model and
+tool call with tokens and timing), `transcript.md`, `summary.json` (steps, tokens, cost, time,
+final answer, checks to grade by hand) and `sandbox/` with the agent's files. The model executes
+real shell commands: use a disposable machine or container.
+
 ## Layout
 
 ```
