@@ -1,0 +1,29 @@
+{
+  "question": "Чи зростає інтерес до астрономії в uk.wikipedia?",
+  "langs": ["uk"],
+  "window": {"months": 12, "end": "2026-08"},
+  "history_start": "2016-01",
+  "baselines": [2019, 2021],
+  "baskets": [
+    {
+      "id": "target",
+      "role": "target",
+      "label": "Астрономія",
+      "items": [
+        {"qid": "Q525"}, {"qid": "Q405"}, {"qid": "Q111"}, {"qid": "Q319"}, {"qid": "Q193"},
+        {"qid": "Q313"}, {"qid": "Q308"}, {"qid": "Q318"}, {"qid": "Q321"}, {"qid": "Q589"},
+        {"qid": "Q4202"}, {"qid": "Q8928"}, {"qid": "Q3559"}, {"qid": "Q3863"}, {"qid": "Q544"},
+        {"qid": "Q523"}, {"qid": "Q44559"}, {"qid": "Q4213"}, {"qid": "Q1"}, {"qid": "Q323"}
+      ]
+    },
+    {
+      "id": "control",
+      "role": "control",
+      "label": "Інші природничі науки",
+      "items": [
+        {"qid": "Q413"}, {"qid": "Q2329"}, {"qid": "Q420"}, {"qid": "Q1069"}, {"qid": "Q1071"},
+        {"qid": "Q395"}, {"qid": "Q7150"}, {"qid": "Q441"}, {"qid": "Q431"}, {"qid": "Q7162"}
+      ]
+    }
+  ]
+}
