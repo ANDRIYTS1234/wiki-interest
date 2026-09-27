@@ -12,6 +12,7 @@ from typing import Any
 
 from ..errors import InputError
 from .fmt import FORMATTERS, fmt_ci
+from .suggest import NUMBER, closest_path, numeric_leaves, placeholder, placeholders_for_number, replace_span
 
 PLACEHOLDER = re.compile(r"\{([^{}]*)\}")  # any {...} span; contents validated in render_text
 PATH_RE = re.compile(r"[A-Za-z0-9_.\-]+")
@@ -114,43 +115,72 @@ def _check_kind(path: str, kind: str, where: str) -> None:
         )
 
 
-def render_text(text: str, metrics: dict[str, Any], lang: str, where: str) -> str:
+def _with_fix(exc: InputError, fix: str | None, text: str, start: int, end: int) -> InputError:
+    """Put the placeholder to use and the corrected sentence first in the hint."""
+    if fix:
+        exc.hint = f"Use {fix}. Corrected: «{replace_span(text, start, end, fix)}»" + (f" ({exc.hint})" if exc.hint else "")
+    return exc
+
+
+def render_text(text: str, metrics: dict[str, Any], lang: str, where: str, headline: set[str] | None = None) -> str:
+    headline = headline or set()
     out, pos = [], 0
     for m in PLACEHOLDER.finditer(text):
         out.append(text[pos : m.start()])
         inner = m.group(1)
         path, sep, kind = inner.rpartition(":")
-        if not sep:
-            raise InputError(
-                f"{where}: malformed placeholder {{{inner}}}",
-                hint="Expected {path.to.metric:format}, e.g. {target.uk.window.change_norm:pct}",
-                code="malformed_placeholder",
-            )
-        if kind not in FORMATTERS and kind != "ci":
-            raise InputError(
-                f"{where}: unknown placeholder format {kind!r} in {{{inner}}}",
-                hint="Allowed formats: pct, int, x, ci",
-                code="unknown_format",
-            )
-        if not PATH_RE.fullmatch(path):
-            raise InputError(f"{where}: invalid characters in placeholder path {path!r}", code="malformed_placeholder")
-        _check_kind(path, kind, where)
-        value = get_path(metrics, path)
-        out.append(_format_value(path, kind, value, lang))
+        try:
+            if not sep:
+                raise InputError(
+                    f"{where}: malformed placeholder {{{inner}}}",
+                    hint="Expected {path.to.metric:format}, e.g. {target.uk.window.change_norm:pct}",
+                    code="malformed_placeholder",
+                )
+            if kind not in FORMATTERS and kind != "ci":
+                raise InputError(
+                    f"{where}: unknown placeholder format {kind!r} in {{{inner}}}",
+                    hint="Allowed formats: pct, int, x, ci",
+                    code="unknown_format",
+                )
+            if not PATH_RE.fullmatch(path):
+                raise InputError(f"{where}: invalid characters in placeholder path {path!r}", code="malformed_placeholder")
+            _check_kind(path, kind, where)
+            value = get_path(metrics, path)
+            out.append(_format_value(path, kind, value, lang))
+        except InputError as exc:
+            candidate = path if sep else inner
+            if exc.code in ("unknown_format", "bad_placeholder_format"):
+                fix = placeholder(candidate) if any(p == candidate for p, _ in numeric_leaves(metrics)) else None
+            elif exc.code in ("unknown_placeholder", "malformed_placeholder", "bad_placeholder_type"):
+                best = closest_path(metrics, candidate)
+                fix = placeholder(best) if best else None
+            else:
+                fix = None
+            raise _with_fix(exc, fix, text, m.start(), m.end())
         pos = m.end()
     out.append(text[pos:])
     rendered = "".join(out)
 
-    stripped = PLACEHOLDER.sub("", text)  # check for bare digits on the ORIGINAL text, not the numbers we just inserted
-    for bad in BARE_DIGITS.finditer(stripped):
-        if not YEAR.fullmatch(bad.group()):
-            snippet = stripped[max(0, bad.start() - 20) : bad.end() + 20]
-            raise InputError(
-                f"{where}: number {bad.group()!r} is typed directly, not from a placeholder (near {snippet!r})",
-                hint="Every number must come from metrics.json: wrap it as {path.to.metric:pct} (or :int/:x/:ci); "
-                "a bare number is only allowed as a 4-digit year (19xx/20xx)",
-                code="bare_number",
-            )
+    # Check for typed numbers in the ORIGINAL text with placeholders masked (positions kept).
+    masked = PLACEHOLDER.sub(lambda m: " " * len(m.group()), text)
+    for bad in NUMBER.finditer(masked):
+        token = bad.group().lstrip("−-+")
+        if YEAR.fullmatch(token):
+            continue
+        after = masked[bad.end() : bad.end() + 1]
+        fixes = placeholders_for_number(metrics, bad.group(), after, lang, headline)
+        end = bad.end() + (1 if fixes and after in ("%", "×", "x") else 0)
+        snippet = text[max(0, bad.start() - 20) : bad.end() + 20]
+        exc = InputError(
+            f"{where}: number {bad.group()!r} is typed directly, not from a placeholder (near {snippet!r})",
+            hint="Every number must come from metrics.json; a bare number is only allowed as a 4-digit year (19xx/20xx)."
+            + ("" if fixes else " No metric has this value: rephrase without it (e.g. \"the last two years\") or use a "
+               "placeholder from analyze's `placeholders`."),
+            code="bare_number",
+        )
+        if len(fixes) > 1:
+            exc.hint = f"Other matches: {', '.join(fixes[1:])}. " + exc.hint
+        raise _with_fix(exc, fixes[0] if fixes else None, text, bad.start(), end)
     return rendered
 
 
@@ -161,7 +191,22 @@ def _check_str(value: Any, where: str, max_len: int) -> None:
         raise InputError(f"narrative.{where} is {len(value)} characters, longer than {max_len}", hint="Shorten it; the PDF is one page")
 
 
+NARRATIVE_EXAMPLE = (
+    'Minimal narrative.json: {"title": "...", "answer": "... {target.uk.window.change_norm:pct} ...", '
+    '"findings": ["...", "..."], "recommendation": "...", "next_steps": ["..."], "caveats": ["..."]} '
+    "— lists are plain strings, numbers only as placeholders."
+)
+
+
 def validate_narrative(raw: Any) -> dict[str, Any]:
+    try:
+        return _validate_narrative(raw)
+    except InputError as exc:
+        exc.hint = (exc.hint + " " if exc.hint else "") + NARRATIVE_EXAMPLE
+        raise
+
+
+def _validate_narrative(raw: Any) -> dict[str, Any]:
     if not isinstance(raw, dict):
         raise InputError("narrative must be a JSON object", hint='{"title", "answer", "findings", "recommendation", "next_steps", "caveats"}')
     unknown = sorted(set(raw) - set(FIELDS))
@@ -181,7 +226,10 @@ def validate_narrative(raw: Any) -> dict[str, Any]:
             out[name] = value
         else:
             if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
-                raise InputError(f"narrative.{name} must be a list of strings")
+                raise InputError(
+                    f"narrative.{name} must be a list of strings",
+                    hint=f'Write "{name}": ["first sentence", "second sentence"] — no objects, no single string.',
+                )
             if len(value) > spec["max_items"]:
                 raise InputError(f"narrative.{name} has {len(value)} items, more than {spec['max_items']}", hint="Keep only the most important ones")
             for i, v in enumerate(value):
@@ -192,10 +240,13 @@ def validate_narrative(raw: Any) -> dict[str, Any]:
 
 def render_narrative(narrative: dict[str, Any], metrics: dict[str, Any], lang: str) -> dict[str, Any]:
     """Validated narrative (see validate_narrative) with every field's placeholders rendered."""
+    from ..analyze import build_placeholders  # the headline numbers analyze offered: preferred in hints
+
+    headline = set(build_placeholders(metrics))
     out: dict[str, Any] = {}
     for name, value in narrative.items():
         if isinstance(value, list):
-            out[name] = [render_text(v, metrics, lang, f"{name}[{i}]") for i, v in enumerate(value)]
+            out[name] = [render_text(v, metrics, lang, f"{name}[{i}]", headline) for i, v in enumerate(value)]
         else:
-            out[name] = render_text(value, metrics, lang, name)
+            out[name] = render_text(value, metrics, lang, name, headline)
     return out

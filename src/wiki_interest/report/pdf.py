@@ -274,8 +274,11 @@ def render_pdf(metrics: dict[str, Any], narrative: dict[str, Any], chart_path: P
             hint=f"Shorten or drop your own caveats: the {n_auto} flag lines are printed automatically; "
             "keep only what they do not cover.",
         )
+    sizes = [("answer", len(narrative["answer"])), ("recommendation", len(narrative["recommendation"]))]
+    sizes += [(f"{f}[{i}]", len(t)) for f in ("findings", "next_steps", "caveats") for i, t in enumerate(narrative[f])]
+    longest = ", ".join(f"{name} ({n} chars)" for name, n in sorted(sizes, key=lambda x: -x[1])[:4])
     raise ReportTooLongError(
         "the report does not fit on one A4 page even in the compact layout",
-        hint=f"Shorten narrative.json: fewer/shorter findings, a shorter answer or recommendation, and drop caveats "
-        f"that repeat the {n_auto} automatic flag lines (those are always printed). Text is never silently cut.",
+        hint=f"Shorten the longest texts first: {longest}. Drop caveats that repeat the {n_auto} automatic flag "
+        "lines (those are always printed). Text is never silently cut.",
     )

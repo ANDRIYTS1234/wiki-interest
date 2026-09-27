@@ -49,6 +49,11 @@ def cmd_report(args: Any, ctx: Any) -> dict[str, Any]:
     # One stable path by default: a follow-up question updates the same report, never a second
     # PDF next to it that disagrees with the first (scenario E).
     out_path = Path(args.out) if args.out else workdir / REPORT_FILE
+    if out_path.is_dir() or str(args.out or "").endswith(("/", "\\")) or out_path.suffix.lower() != ".pdf":
+        raise InputError(
+            f"--out {args.out!r} is not a PDF file path",
+            hint="Pass a file such as out/report.pdf, or omit --out to write <workdir>/report.pdf",
+        )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     replaced = out_path.exists()
     chart_path = workdir / CHART_FILE

@@ -207,8 +207,25 @@ def parse_basket_item(raw: Any, langs: tuple[str, ...], where: str) -> BasketIte
     raise InputError(f"{where}: unexpected keys {sorted(keys)}", hint=f"Each item is exactly one of {BASKET_ITEM_FORMS}")
 
 
+ANALYSIS_EXAMPLE = (
+    'Minimal analysis.json: {"question": "Is interest in X growing?", "langs": ["pl", "cs"], '
+    '"window": {"months": 12, "end": "latest"}, "baselines": [2021], "baskets": [{"id": "target", '
+    '"role": "target", "label": "X", "items": [{"qid": "Q..."}, {"qid": "Q...", "group": "basics"}]}, '
+    '{"id": "control", "role": "control", "label": "A different topic", "items": [{"qid": "Q..."}]}]}'
+)
+
+
 def parse_analysis_spec(data: Any) -> AnalysisSpec:
-    example = "See docs/SPEC.md §8 or examples/ for a complete analysis.json"
+    try:
+        return _parse_analysis_spec(data)
+    except InputError as exc:
+        if not exc.hint:
+            exc.hint = ANALYSIS_EXAMPLE
+        raise
+
+
+def _parse_analysis_spec(data: Any) -> AnalysisSpec:
+    example = ANALYSIS_EXAMPLE
     if not isinstance(data, dict):
         raise InputError("analysis spec must be a JSON object", hint=example)
     _only_keys(data, {"question", "langs", "window", "history_start", "baselines", "baskets", "params"}, "analysis spec")

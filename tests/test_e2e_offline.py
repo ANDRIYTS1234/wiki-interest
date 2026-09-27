@@ -189,3 +189,59 @@ def test_caveats_block_at_most_a_quarter_page(tmp_path, capsys, monkeypatch):
     code = main([*common, "report", "--narrative", str(tmp_path / "n.json")], session=FakeSession(no_network))
     out = json.loads(capsys.readouterr().out)
     assert code == 2 and out["error"]["code"] == "report_too_long" and "quarter" in out["error"]["message"]
+
+
+def _render_error(m, text):
+    from wiki_interest.errors import InputError
+    from wiki_interest.report.narrative import render_narrative
+
+    n = {"title": "T", "answer": text, "findings": ["f"], "recommendation": "r", "next_steps": [], "caveats": []}
+    with pytest.raises(InputError) as ei:
+        render_narrative(n, m, "en")
+    return ei.value
+
+
+def test_validator_hints_fix_haikus_mistakes_in_one_try(tmp_path, capsys, monkeypatch):
+    """Haiku failed 12 of 14 report calls on scenario B guessing placeholders; each hint now gives
+    the placeholder to use and the corrected sentence."""
+    _, m = _metrics(tmp_path, capsys, monkeypatch)
+    # the actual mistake from the run: "in 24 months" (the window length)
+    e = _render_error(m, "Interest dropped in 24 months.")
+    assert e.code == "bare_number" and "Use {spec.window.months:int}" in e.hint
+    assert "Corrected: «Interest dropped in {spec.window.months:int} months.»" in e.hint
+    # a typed percentage that is a metric: the headline placeholder is offered first
+    pl = m["baskets"]["target"]["pl"]["window"]["change_norm"]
+    typed = f"{round(pl * 100):d}%"
+    e = _render_error(m, f"The stand-in fell {typed} in pl.")
+    assert e.hint.startswith("Use {target.pl.window.change_norm:pct}. Corrected: «The stand-in fell {target.pl.window.change_norm:pct} in pl.»")
+    # a guessed path: the closest real one
+    e = _render_error(m, "Index {target.cs.window.index_norms:x}.")
+    assert e.code == "unknown_placeholder" and e.hint.startswith("Use {target.cs.window.index_norm:x}.")
+    # a wrong format: same path, right format
+    e = _render_error(m, "Index {target.cs.window.index_norm:pct}.")
+    assert e.hint.startswith("Use {target.cs.window.index_norm:x}. Corrected: «Index {target.cs.window.index_norm:x}.»")
+    # a number with no metric behind it
+    e = _render_error(m, "About 7 articles.")
+    assert "No metric has this value" in e.hint
+
+
+def test_schema_errors_show_a_minimal_valid_example(tmp_path):
+    from wiki_interest.errors import InputError
+    from wiki_interest.report.narrative import validate_narrative
+    from wiki_interest.schemas import parse_analysis_spec
+
+    with pytest.raises(InputError) as ei:
+        validate_narrative({"title": "T", "answer": "A", "findings": ["f"], "recommendation": "r", "next_steps": [{"step": "x"}]})
+    assert '"next_steps": ["first sentence", "second sentence"]' in ei.value.hint and "Minimal narrative.json" in ei.value.hint
+    with pytest.raises(InputError) as ei:
+        parse_analysis_spec({"langs": ["pl"], "baskets": []})
+    assert ei.value.hint.startswith("Minimal analysis.json")
+
+
+def test_out_pointing_at_a_folder_is_an_input_error(tmp_path, capsys, monkeypatch):
+    common, _ = _analyzed(tmp_path, capsys, monkeypatch)
+    (tmp_path / "out").mkdir()
+    code = main([*common, "report", "--narrative", str(EXAMPLE / "narrative.json"), "--out", str(tmp_path / "out")],
+                session=FakeSession(no_network))
+    out = json.loads(capsys.readouterr().out)
+    assert code == 2 and out["error"]["code"] == "invalid_input" and "report.pdf" in out["error"]["hint"]
