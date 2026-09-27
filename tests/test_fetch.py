@@ -130,12 +130,57 @@ def test_dry_run_makes_no_requests(capsys, tmp_path):
     assert code == 0 and out["dry_run"] is True
     assert out["unresolved"] and "lower bound" in out["note"]
     assert out["requests_needed"] == 2  # only the aggregates are known before resolve
+    # No runs yet: the measured default for a User-Agent with a contact (project URL).
+    assert out["estimate_basis"].startswith("default") and out["seconds_per_request"] == 0.8
+    assert "warning" not in out
 
     run(capsys, tmp_path, step1, replay_session(fx))
     code, out, _ = run(capsys, tmp_path, step2, offline, "--dry-run")
     assert code == 0 and out["unresolved"] == [] and "note" not in out
     assert out["series"] == 7 and out["series_cached"] == 0 and out["requests_needed"] == 7
-    assert out["estimated_seconds"] == round(7 * 0.6)
+    assert out["estimate_basis"].startswith("measured in previous runs (7 requests)")
+
+
+def test_estimate_uses_measured_time_and_warns_without_contact(tmp_path):
+    from wiki_interest.fetch import estimate
+
+    with Cache(tmp_path / "c.sqlite") as cache:
+        cache.record_timing("contact", 10, 15.0)
+        est = estimate(cache, "https://example.org/x", 100)
+        assert est["seconds_per_request"] == 1.5 and est["estimated_seconds"] == 150
+        none = estimate(cache, None, 100)
+        assert none["estimate_basis"].startswith("default") and none["estimated_seconds"] == 320
+        assert "4x slower" in none["warning"]
+        for _ in range(20):
+            cache.record_timing("contact", 100, 100.0)
+        assert cache.timing("contact")["requests"] == 500  # old runs fade out
+
+
+def test_redirects_none_skips_then_full_run_fills_in(capsys, tmp_path):
+    fx = load_fixture("fetch", "neutron_uk")
+    step1 = fx["input"][0]
+
+    quick = replay_session(fx)
+    code, out, _ = run(capsys, tmp_path, step1, quick, "--redirects", "none")
+    assert code == 0 and out["redirects"] == "none" and out["series_skipped"] == 2
+    assert "REDIRECTS_SKIPPED" in out["note"]
+    urls = pageview_urls(quick)
+    assert len(urls) == 5 and not any("%D0%B7%D1%96%D1%80%D0%BA%D0%B0" in u for u in urls)  # no «зірка»
+    with cache_at(tmp_path) as cache:
+        cov = cache.coverage("uk.wikipedia", "Нейтронна зірка", "all-access", "user")
+        assert [(c["start"], c["end"], c["status"]) for c in cov] == [("2025-07-01", "2026-07-31", "skipped")]
+
+    again = replay_session(fx)
+    code, out, _ = run(capsys, tmp_path, step1, again, "--redirects", "none", "--dry-run")
+    assert out["requests_needed"] == 0 and out["series_skipped"] == 0  # skipped ranges already recorded
+
+    full = replay_session(fx)
+    code, out, _ = run(capsys, tmp_path, step1, full)
+    assert code == 0 and out["series_skipped"] == 0
+    assert len(pageview_urls(full)) == 2  # only the two redirects
+    with cache_at(tmp_path) as cache:
+        cov = cache.coverage("uk.wikipedia", "Нейтронна зірка", "all-access", "user")
+        assert [(c["start"], c["end"], c["status"]) for c in cov] == [("2025-07-01", "2026-07-31", "ok")]  # replaced
 
 
 def test_network_failure_exit_5_then_allow_partial_then_resume(capsys, tmp_path):

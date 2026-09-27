@@ -135,3 +135,17 @@ def test_subprocess_stdout_is_utf8_json(tmp_path):
     assert out["ok"] is True
     cache_check = next(c for c in out["checks"] if c["name"] == "cache")
     assert "Кеш з апострофом '" in cache_check["detail"]
+
+
+def test_doctor_contact_messages(settings):
+    from wiki_interest.config import Contact
+    from wiki_interest.doctor import check_contact
+
+    settings.contact = Contact(None, "none")
+    status, detail, hint = check_contact(settings)
+    assert status == "fail" and "4x slower" in detail and "WIKI_INTEREST_CONTACT" in hint
+    settings.contact = Contact("https://github.com/ANDRIYTS1234/wiki-interest", "project_url")
+    status, detail, _ = check_contact(settings)
+    assert status == "warn" and "same as with an email" in detail
+    settings.contact = Contact("me@example.org", "env")
+    assert check_contact(settings)[0] == "ok"

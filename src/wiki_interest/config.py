@@ -36,8 +36,15 @@ PAGEVIEWS_START = dt.date(2015, 7, 1)
 # days are never requested and are recorded as "unavailable".
 AUTOMATED_START = dt.date(2020, 5, 1)
 
-# Rough wall time per request for --dry-run estimates: min_interval plus typical latency.
-EST_SECONDS_PER_REQUEST = 0.6
+# Seconds per successful Pageviews request, used by --dry-run until this cache has its own
+# measurements (see Cache.record_timing). Measured 2026-09-27 from Windows, blocks of distinct
+# per-article requests (2015-07..2026-08), same client settings (0.25 s interval, retries):
+#   User-Agent with the project URL as contact: 0 of 60 raw requests got 429; 0.71-1.0 s/request.
+#   User-Agent without any contact:            20 of 30 raw requests got 429; 2.9-3.5 s/request.
+# So a URL contact works like an email (the baseline measured ~1.5 s with email vs ~3.6 s
+# without), and a missing contact makes downloads about 4x slower.
+SECONDS_PER_REQUEST_WITH_CONTACT = 0.8
+SECONDS_PER_REQUEST_WITHOUT_CONTACT = 3.2
 
 
 @dataclass(frozen=True)

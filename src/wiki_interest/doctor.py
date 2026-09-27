@@ -12,7 +12,13 @@ from typing import Any, Callable
 import requests
 
 from .cache import Cache
-from .config import ENV_CONTACT, Settings, latest_full_month
+from .config import (
+    ENV_CONTACT,
+    SECONDS_PER_REQUEST_WITH_CONTACT,
+    SECONDS_PER_REQUEST_WITHOUT_CONTACT,
+    Settings,
+    latest_full_month,
+)
 from .errors import WikiInterestError
 from .http import HttpClient, parse_json
 
@@ -76,13 +82,25 @@ def check_cache(settings: Settings) -> tuple[str, str, str]:
 
 
 def check_contact(settings: Settings) -> tuple[str, str, str]:
+    # Speeds: see the measurement notes next to SECONDS_PER_REQUEST_* in config.py.
     c = settings.contact
     if c.source == "env":
         return "ok", settings.user_agent, ""
-    hint = f"Set {ENV_CONTACT} to your email or a URL so Wikimedia can reach you"
     if c.source == "project_url":
-        return "warn", f"{ENV_CONTACT} not set; using project URL: {settings.user_agent}", hint
-    return "fail", f"{ENV_CONTACT} not set and no project URL found: {settings.user_agent}", hint
+        return (
+            "warn",
+            f"{ENV_CONTACT} not set; the User-Agent carries the project URL ({settings.user_agent}). "
+            "Measured download speed is the same as with an email, but Wikimedia cannot reach you personally.",
+            f"Set {ENV_CONTACT} to your email or URL (Wikimedia User-Agent policy)",
+        )
+    slow = SECONDS_PER_REQUEST_WITHOUT_CONTACT / SECONDS_PER_REQUEST_WITH_CONTACT
+    return (
+        "fail",
+        f"No contact in the User-Agent ({settings.user_agent}): Wikimedia throttles such clients; downloads are "
+        f"about {slow:.0f}x slower (~{SECONDS_PER_REQUEST_WITHOUT_CONTACT:g} s vs ~{SECONDS_PER_REQUEST_WITH_CONTACT:g} s "
+        "per request) with frequent 429.",
+        f"Set {ENV_CONTACT} to your email or URL",
+    )
 
 
 def domain_probes(month: str) -> dict[str, str]:

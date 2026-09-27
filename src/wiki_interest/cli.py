@@ -86,6 +86,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--spec", required=True, help="analysis.json")
     p.add_argument("--allow-partial", action="store_true", help="continue when some series fail; record them as missing")
     p.add_argument("--dry-run", action="store_true", help="no requests: show how many requests are needed and the estimated time")
+    p.add_argument(
+        "--redirects",
+        choices=("all", "none"),
+        default="all",
+        help="none: main titles only (quick first pass; analyze flags REDIRECTS_SKIPPED)",
+    )
 
     p = add("analyze", "compute metrics.json from cached pageviews")
     p.add_argument("--spec", required=True, help="analysis.json")

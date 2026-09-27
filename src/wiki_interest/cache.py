@@ -20,6 +20,8 @@ SCHEMA_VERSION = 2
 #   empty_404   - the API answered 404 for a title confirmed by resolve: all days are 0
 #   unavailable - the API has no data of this class for the range (e.g. `automated`
 #                 before May 2020); values are unknown, never zero
+#   skipped     - deliberately not downloaded (fetch --redirects none); values unknown;
+#                 does not count as coverage, so a later full fetch downloads the range
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
     key   TEXT PRIMARY KEY,
@@ -59,7 +61,7 @@ CREATE TABLE IF NOT EXISTS resolved (
 );
 """
 
-COVERAGE_STATUSES = ("ok", "empty_404", "unavailable")
+COVERAGE_STATUSES = ("ok", "empty_404", "unavailable", "skipped")
 
 
 def _utcnow() -> dt.datetime:
@@ -180,3 +182,30 @@ class Cache:
     def get_resolved(self, key: str) -> dict[str, Any] | None:
         row = self.conn.execute("SELECT payload FROM resolved WHERE key = ?", (key,)).fetchone()
         return json.loads(row[0]) if row else None
+
+    # -- meta and request timing -------------------------------------------------------
+
+    def meta_get(self, key: str) -> str | None:
+        row = self.conn.execute("SELECT value FROM meta WHERE key = ?", (key,)).fetchone()
+        return row[0] if row else None
+
+    def meta_set(self, key: str, value: str) -> None:
+        with self.conn:
+            self.conn.execute("INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)", (key, value))
+
+    TIMING_WINDOW = 500  # older runs fade out: totals are rescaled to at most this many requests
+
+    def record_timing(self, kind: str, requests: int, seconds: float) -> None:
+        """Accumulate wall time per Pageviews request for dry-run estimates. `kind`: contact | no_contact."""
+        if requests <= 0:
+            return
+        key = f"timing:{kind}"
+        old = json.loads(self.meta_get(key) or '{"requests": 0, "seconds": 0.0}')
+        n, t = old["requests"] + requests, old["seconds"] + seconds
+        if n > self.TIMING_WINDOW:
+            t, n = t * self.TIMING_WINDOW / n, self.TIMING_WINDOW
+        self.meta_set(key, json.dumps({"requests": n, "seconds": round(t, 3)}))
+
+    def timing(self, kind: str) -> dict[str, float] | None:
+        raw = self.meta_get(f"timing:{kind}")
+        return json.loads(raw) if raw else None

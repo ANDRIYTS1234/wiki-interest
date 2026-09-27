@@ -12,6 +12,10 @@ Per language: aggregate user and automated views of the whole project.
 Only ranges missing from `coverage` are requested. Days without a record are zero only inside
 confirmed coverage. A 404 for a title confirmed by resolve is stored as confirmed zeros
 (status empty_404). `automated` before AUTOMATED_START is stored as "unavailable", never zeros.
+
+--redirects none (a quick first pass for large baskets) downloads main titles only; the
+redirect and former-title ranges are recorded as "skipped" so analyze flags REDIRECTS_SKIPPED
+and a later full fetch still downloads them.
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import logging
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -26,7 +31,13 @@ from urllib.parse import quote
 
 from . import __version__
 from .cache import Cache
-from .config import AUTOMATED_START, EST_SECONDS_PER_REQUEST, PAGEVIEWS_START, latest_full_month
+from .config import (
+    AUTOMATED_START,
+    PAGEVIEWS_START,
+    SECONDS_PER_REQUEST_WITH_CONTACT,
+    SECONDS_PER_REQUEST_WITHOUT_CONTACT,
+    latest_full_month,
+)
 from .dates import add_months, day, first_day, gaps, iso, last_day
 from .errors import IncompleteDataError, InputError, RateLimitError, WikiInterestError
 from .http import HttpClient, parse_json
@@ -78,6 +89,7 @@ class Series:
     gaps: list[tuple[dt.date, dt.date]] = field(default_factory=list)
     unavailable: tuple[dt.date, dt.date] | None = None  # recorded without a request
     unavailable_recorded: bool = True
+    skipped: list[tuple[dt.date, dt.date]] = field(default_factory=list)  # --redirects none
 
     @property
     def key(self) -> tuple[str, str, str, str]:
@@ -187,7 +199,11 @@ def article_series(art: Article, start: dt.date, end: dt.date) -> list[Series]:
     return out
 
 
-def build_plan(spec: AnalysisSpec, cache: Cache, resolver: Resolver | None) -> Plan:
+REDIRECT_MODES = ("all", "none")
+SKIPPABLE_ROLES = ("redirect", "former_title")
+
+
+def build_plan(spec: AnalysisSpec, cache: Cache, resolver: Resolver | None, redirects: str = "all") -> Plan:
     end_month = data_as_of(spec)
     start, end = first_day(start_month(spec, end_month)), last_day(end_month)
     articles, missing, unresolved = collect_articles(spec, cache, resolver)
@@ -208,7 +224,8 @@ def build_plan(spec: AnalysisSpec, cache: Cache, resolver: Resolver | None) -> P
             unique[s.key] = s
 
     for s in unique.values():
-        covered = [(day(c["start"]), day(c["end"])) for c in cache.coverage(*s.key)]
+        # "skipped" is not coverage: a later full fetch must download those ranges.
+        covered = [(day(c["start"]), day(c["end"])) for c in cache.coverage(*s.key) if c["status"] != "skipped"]
         fetch_from = s.start
         if s.agent == "automated" and s.start < AUTOMATED_START:
             s.unavailable = (s.start, min(s.end, AUTOMATED_START - dt.timedelta(days=1)))
@@ -216,6 +233,10 @@ def build_plan(spec: AnalysisSpec, cache: Cache, resolver: Resolver | None) -> P
             fetch_from = AUTOMATED_START
         if fetch_from <= s.end:
             s.gaps = gaps((fetch_from, s.end), covered)
+        if redirects == "none" and s.role in SKIPPABLE_ROLES:
+            recorded = [(day(c["start"]), day(c["end"])) for c in cache.coverage(*s.key)]
+            s.skipped = [g for g in s.gaps if gaps(g, recorded)]
+            s.gaps = []
     return Plan(start, end, end_month, articles, list(unique.values()), missing, unresolved)
 
 
@@ -252,16 +273,20 @@ def execute(plan: Plan, http: HttpClient, cache: Cache) -> tuple[list[dict[str, 
     total, n = plan.requests_needed, 0
     ordered = sorted(plan.series, key=lambda s: (s.article != AGGREGATE, s.owner, s.role != "main", s.article, s.access, s.agent))
     rate_limited: RateLimitError | None = None
+    busy = 0.0  # wall time spent in requests, incl. throttling and retries, for dry-run estimates
     for s in ordered:
         if s.unavailable and not s.unavailable_recorded:
             u0, u1 = s.unavailable
             cache.put_pageviews(*s.key, [], start=iso(u0), end=iso(u1), status="unavailable")
+        for k0, k1 in s.skipped:
+            cache.put_pageviews(*s.key, [], start=iso(k0), end=iso(k1), status="skipped")
         for g0, g1 in s.gaps:
             if rate_limited is not None:
                 missing.append({**s.describe(), "start": iso(g0), "end": iso(g1), "error": "not attempted: rate limited"})
                 continue
             n += 1
             log.info("[%d/%d] %s %s %s/%s %s..%s", n, total, s.project, s.article, s.access, s.agent, g0, g1)
+            t0 = time.monotonic()
             try:
                 rows, status = fetch_range(http, s, g0, g1)
             except RateLimitError as exc:
@@ -273,6 +298,8 @@ def execute(plan: Plan, http: HttpClient, cache: Cache) -> tuple[list[dict[str, 
                 missing.append({**s.describe(), "start": iso(g0), "end": iso(g1), "error": exc.message})
                 log.error("failed: %s", exc.message)
                 continue
+            finally:
+                busy += time.monotonic() - t0
             covered_to = g1
             if s.article == AGGREGATE:
                 # Project totals are never zero: a short answer means the API has no data yet.
@@ -287,7 +314,39 @@ def execute(plan: Plan, http: HttpClient, cache: Cache) -> tuple[list[dict[str, 
                     })
             if covered_to >= g0:
                 cache.put_pageviews(*s.key, [r for r in rows if r[0] <= iso(covered_to)], start=iso(g0), end=iso(covered_to), status=status)
+    if rate_limited is None:  # a rate-limited run would distort the per-request estimate
+        cache.record_timing(timing_kind(http.settings.contact.value), n, busy)
     return missing, rate_limited
+
+
+def timing_kind(contact: str | None) -> str:
+    return "contact" if contact else "no_contact"
+
+
+def estimate(cache: Cache, contact: str | None, requests: int) -> dict[str, Any]:
+    """Time estimate from this cache's measured request times; the measured defaults otherwise."""
+    kind = timing_kind(contact)
+    measured = cache.timing(kind)
+    if measured and measured["requests"] >= 5:
+        per = measured["seconds"] / measured["requests"]
+        basis = f"measured in previous runs ({int(measured['requests'])} requests)"
+    else:
+        per = SECONDS_PER_REQUEST_WITH_CONTACT if contact else SECONDS_PER_REQUEST_WITHOUT_CONTACT
+        basis = "default for this User-Agent (no previous runs in this cache)"
+    seconds = round(requests * per)
+    out: dict[str, Any] = {
+        "seconds_per_request": round(per, 2),
+        "estimate_basis": basis,
+        "estimated_seconds": seconds,
+        "estimated_minutes": round(seconds / 60, 1),
+    }
+    if not contact:
+        slow = SECONDS_PER_REQUEST_WITHOUT_CONTACT / SECONDS_PER_REQUEST_WITH_CONTACT
+        out["warning"] = (
+            f"No contact in the User-Agent: Wikimedia throttles such clients (frequent 429); downloads are about "
+            f"{slow:.0f}x slower. Set WIKI_INTEREST_CONTACT to an email or URL."
+        )
+    return out
 
 
 # -- command ---------------------------------------------------------------------------
@@ -303,21 +362,21 @@ def _write_result(workdir: Path, payload: dict[str, Any]) -> Path:
 def cmd_fetch(args: Any, ctx: Any) -> dict[str, Any]:
     spec = parse_analysis_spec(load_json_file(args.spec, "analysis spec"))
     cache: Cache = ctx.cache
+    contact = ctx.settings.contact.value
 
     if args.dry_run:
-        plan = build_plan(spec, cache, None)
+        plan = build_plan(spec, cache, None, args.redirects)
         needed = plan.requests_needed
-        cached = sum(1 for s in plan.series if not s.gaps)
-        seconds = round(needed * EST_SECONDS_PER_REQUEST)
         out = {
             "dry_run": True,
             "data_as_of": plan.data_as_of,
             "range": {"start": iso(plan.start), "end": iso(plan.end)},
+            "redirects": args.redirects,
             "series": len(plan.series),
-            "series_cached": cached,
+            "series_cached": sum(1 for s in plan.series if not s.gaps and not s.skipped),
+            "series_skipped": sum(1 for s in plan.series if s.skipped),
             "requests_needed": needed,
-            "estimated_seconds": seconds,
-            "estimated_minutes": round(seconds / 60, 1),
+            **estimate(cache, contact, needed),
             "missing_articles": plan.missing_articles,
             "unresolved": plan.unresolved,
         }
@@ -330,25 +389,27 @@ def cmd_fetch(args: Any, ctx: Any) -> dict[str, Any]:
         return out
 
     resolver = Resolver(ctx.http, cache)
-    plan = build_plan(spec, cache, resolver)
-    cached = sum(1 for s in plan.series if not s.gaps)
+    plan = build_plan(spec, cache, resolver, args.redirects)
+    cached = sum(1 for s in plan.series if not s.gaps and not s.skipped)
+    skipped = sum(1 for s in plan.series if s.skipped)
     needed = plan.requests_needed
     log.info(
-        "fetch: %d series, %d already cached, %d requests to make (~%d s)",
-        len(plan.series), cached, needed, round(needed * EST_SECONDS_PER_REQUEST),
+        "fetch: %d series, %d already cached, %d skipped, %d requests to make (~%d s)",
+        len(plan.series), cached, skipped, needed, estimate(cache, contact, needed)["estimated_seconds"],
     )
     resolve_requests = ctx.http.requests_made
     missing, rate_limited = execute(plan, ctx.http, cache)
     common = {
         "data_as_of": plan.data_as_of,
         "range": {"start": iso(plan.start), "end": iso(plan.end)},
+        "redirects": args.redirects,
     }
     result_file = _write_result(
         ctx.settings.workdir,
         {
             **common,
             "question": spec.question,
-            "series": [s.describe() for s in plan.series],
+            "series": [{**s.describe(), "skipped": bool(s.skipped)} for s in plan.series],
             "missing_series": missing,
             "missing_articles": plan.missing_articles,
             "articles": [{"lang": a.lang, "title": a.title, "qid": a.entry.get("qid"), "members": a.members} for a in plan.articles],
@@ -360,11 +421,17 @@ def cmd_fetch(args: Any, ctx: Any) -> dict[str, Any]:
         "resolve_requests": resolve_requests,
         "cache_hits": cached,
         "series": len(plan.series),
+        "series_skipped": skipped,
         "missing_series": missing[:MAX_LISTED],
         "missing_series_count": len(missing),
         "missing_articles": plan.missing_articles,
         "result_file": str(result_file),
     }
+    if skipped:
+        summary["note"] = (
+            f"{skipped} redirect/former-title series were skipped (--redirects none); analyze flags "
+            "REDIRECTS_SKIPPED. Rerun with --redirects all for complete data."
+        )
     if missing and not args.allow_partial:
         details = {"missing_series": missing[:MAX_LISTED], "missing_series_count": len(missing), "result_file": str(result_file)}
         if rate_limited is not None:
