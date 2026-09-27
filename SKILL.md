@@ -44,6 +44,7 @@ Every command prints one JSON object to stdout. Non-zero exit = stop and read `e
 ## Rules (each one fixes a real failure seen without this skill)
 
 - **No numbers or conclusions without the CLI.** Every number, trend and recommendation must come from `resolve` → `fetch` → `analyze` → `report` that you actually ran in this conversation. Never write your own script to fetch data, compute metrics or build a report, and never estimate figures. If a command fails or cannot run, stop and tell the user what failed and why — do not produce a report or an answer without it.
+- **One language.** Talk to the user and write the whole `narrative.json` in the user's language, even if the articles are in another one; pass the matching `--report-lang` (`uk` or `en`). `report` warns in `language_warnings` when the text does not match.
 - **Check the user's premise.** If they say "interest exploded", test it; do not echo it.
 - **Missing article ≠ no demand.** It is a gap in that Wikipedia, and must be stated as such.
 - **Flags:** the PDF lists all of them; in the chat answer mention those that change the conclusion (`references/interpreting.md` has wording).

@@ -198,6 +198,29 @@ NARRATIVE_EXAMPLE = (
 )
 
 
+SCRIPT = {"uk": "Cyrillic", "en": "Latin"}
+MIN_LETTERS = 15  # shorter fields (a name, a code) say little about the language
+
+
+def language_warnings(narrative: dict[str, Any], report_lang: str) -> list[str]:
+    """Fields written mostly in another script than --report-lang expects. A Haiku run switched to
+    Polish mid-way and wrote the PDF's title and findings in English under Ukrainian labels."""
+    expected = SCRIPT[report_lang]
+    out = []
+    for name, value in narrative.items():
+        for i, text in enumerate(value if isinstance(value, list) else [value]):
+            plain = PLACEHOLDER.sub(" ", text)
+            cyr = len(re.findall(r"[Ѐ-ӿ]", plain))
+            lat = len(re.findall(r"[A-Za-zÀ-ɏ]", plain))
+            if cyr + lat < MIN_LETTERS:
+                continue
+            got = "Cyrillic" if cyr > lat else "Latin"
+            if got != expected:
+                where = f"{name}[{i}]" if isinstance(value, list) else name
+                out.append(f"{where} is mostly {got} text but --report-lang is {report_lang}: write the whole narrative in the user's language and set --report-lang to match")
+    return out
+
+
 def validate_narrative(raw: Any) -> dict[str, Any]:
     try:
         return _validate_narrative(raw)

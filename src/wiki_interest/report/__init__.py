@@ -12,7 +12,7 @@ from ..schemas import load_json_file
 from .appendix import build_appendix
 from .charts import render_chart
 from .flag_text import duplicate_of
-from .narrative import render_narrative, validate_narrative
+from .narrative import language_warnings, render_narrative, validate_narrative
 from .pdf import render_pdf
 
 APPENDIX_FILE = "appendix.md"
@@ -31,6 +31,7 @@ def cmd_report(args: Any, ctx: Any) -> dict[str, Any]:
     narrative_raw = load_json_file(args.narrative, "narrative.json")
     narrative = validate_narrative(narrative_raw)
     rendered = render_narrative(narrative, metrics, args.report_lang)
+    lang_warnings = language_warnings(narrative, args.report_lang)
     # An agent caveat that repeats an automatically printed line is not printed twice (a Haiku run
     # added "Cannot compare Polish-Czech" next to the automatic line); stdout says what was dropped.
     printed = {f["code"] for f in metrics.get("flags", [])}
@@ -73,4 +74,5 @@ def cmd_report(args: Any, ctx: Any) -> dict[str, Any]:
         "chart": str(chart_path),
         "appendix": str(appendix_path),
         "caveats_dropped": dropped,
+        **({"language_warnings": lang_warnings} if lang_warnings else {}),
     }
