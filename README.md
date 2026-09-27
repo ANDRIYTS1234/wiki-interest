@@ -62,6 +62,11 @@ git clone https://github.com/ANDRIYTS1234/wiki-interest .claude/skills/wiki-inte
 Restart the session; the skill is picked up by its description ("is interest in X growing in
 Polish Wikipedia?") without naming it. Update with `git pull` in the skill folder.
 
+If many skills and plugins are installed, Claude Code may shorten the list it shows the model to
+bare names, and a small model (Haiku) then does not recognise that this skill fits the request.
+In that case name it explicitly: "use the wiki-interest skill" / «використай навичку
+wiki-interest» (see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)).
+
 **Without uv:** `python -m venv .venv && .venv/bin/pip install -e <skill folder>` (Windows:
 `.venv\Scripts\pip`); SKILL.md explains the `python -m wiki_interest` form the agent then uses.
 
