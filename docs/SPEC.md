@@ -163,6 +163,6 @@ narrative.json пише агент:
 - Офлайн e2e: `examples/` містить spec, narrative і знімок кешу для одного сценарію; ланцюжок `analyze → report` без мережі дає односторінковий PDF.
 - GitHub Actions: ubuntu-latest, windows-latest, macos-latest × Python 3.10 і 3.12; `uv sync --locked`, pytest, офлайн e2e.
 
-## 12. Поза межами цього етапу
+## 12. Поза межами контракту
 
-SKILL.md, references/, evals з агентними прогонами, автоматичний підбір кошика тем (наприклад, із мета-списку «List of articles every Wikipedia should have» чи категорій) — наступні етапи; інтерфейс `resolve` має дозволяти їх додати без зламу контракту.
+Автоматичний підбір кошика тем (наприклад, із мета-списку «List of articles every Wikipedia should have» чи категорій) та інші кроки розвитку — у `docs/ROADMAP.md`; інтерфейс `resolve` має дозволяти їх додати без зламу контракту.

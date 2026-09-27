@@ -28,6 +28,43 @@ uv run wiki-interest doctor  # Python, dependencies, font, cache, network, User-
 Set `WIKI_INTEREST_CONTACT` to your email or URL for the Wikimedia User-Agent (the project URL is
 used otherwise). From another folder: `uv run --project <path-to-this-repo> wiki-interest doctor`.
 
+## Install as an agent skill
+
+The whole repository is the skill directory: `SKILL.md` at the root, the CLI in `src/`, the
+agent's reference notes in `references/`. Tests, docs and evals are extras the agent never needs.
+
+What the machine needs:
+- an agent with a shell tool that supports [Agent Skills](https://agentskills.io) (Claude Code,
+  or any agent loop that puts `SKILL.md` into the model's context — see `evals/run_agent.py`);
+- Python 3.10+ and [uv](https://docs.astral.sh/uv/) (or plain `pip`, see below);
+- outbound HTTPS to `wikimedia.org`, `*.wikipedia.org` and `www.wikidata.org`.
+
+**Claude Code, for all your projects:**
+
+```bash
+git clone https://github.com/ANDRIYTS1234/wiki-interest ~/.claude/skills/wiki-interest
+uv run --project ~/.claude/skills/wiki-interest wiki-interest doctor   # creates the venv once
+```
+
+**Claude Code, for one project** (the team gets it through the repository):
+
+```bash
+git clone https://github.com/ANDRIYTS1234/wiki-interest .claude/skills/wiki-interest
+```
+
+Restart the session; the skill is picked up by its description ("is interest in X growing in
+Polish Wikipedia?") without naming it. Update with `git pull` in the skill folder.
+
+**Without uv:** `python -m venv .venv && .venv/bin/pip install -e <skill folder>` (Windows:
+`.venv\Scripts\pip`); SKILL.md explains the `python -m wiki_interest` form the agent then uses.
+
+**Other agents:** give the model `SKILL.md` as instructions and the absolute path of the skill
+folder as `SKILL_DIR`; everything else goes through the CLI.
+
+Optional: `WIKI_INTEREST_CONTACT=<your email>` for the Wikimedia User-Agent. The cache is created
+in the working folder (`./.wiki-interest-cache`), so repeated questions there are answered
+without downloading again.
+
 ## Commands
 
 Every command prints one JSON object to stdout (`"ok": true|false`), progress to stderr, and
@@ -92,17 +129,13 @@ SKILL.md, references/      the skill: workflow and rules for the agent
 src/wiki_interest/         CLI: resolve, fetch, analyze/, report/, cache, http
 tests/                     unit, regression (resolve cases from the baselines), offline e2e
 examples/                  demo specs, narrative, cache snapshot
-docs/                      assignment and code contract (SPEC)
+docs/                      assignment, code contract (SPEC), roadmap, verification
 evals/                     baseline protocols, scenarios and trigger checks, agent runner
 ```
 
 ## Growing the skill
 
-- **Larger studies.** Baskets from structured sources instead of the model's memory (Wikidata
-  queries, "List of articles every Wikipedia should have", categories) behind the same `resolve`
-  interface; parallel fetch with a shared rate limiter; monthly instead of daily series for
-  long histories.
-- **More questions.** Ranking many languages at once (index vs edition size, share of speakers),
-  topic discovery (which subtopics grow fastest), alerts on a saved spec.
-- **Verification loop.** Every new failure seen in an agent run becomes a check in
-  `evals/scenarios.yaml` and, where it has one right answer, a CLI rule rather than an instruction.
+[docs/ROADMAP.md](docs/ROADMAP.md): the iteration loop (scenario → run without changes → fix in
+code or instructions → check in `evals/` → rerun) and the stages beyond the base version —
+automatic basket suggestion, ranking many audiences, larger data volumes.
+[docs/VERIFICATION.md](docs/VERIFICATION.md): how the AI-written code and the skill were checked.
