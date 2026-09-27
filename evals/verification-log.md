@@ -62,7 +62,7 @@ sys	0m0.015s
 Розбіжності:
 - «leis doxadrez» з етапу 1 — хибна тривога: пробіл загубився при копіюванні з терміналу на місці переносу рядка. Агент перевірив Wikidata і вивід, додав тест на незмінність позначок.
 - Етап 2 на момент перевірки не запушений; агент чекав підтвердження на push.
-]633;E;{   echo\x3b   echo "## Етап 2 доповнення — контакт і --redirects ($(date +%d.%m.%Y))"\x3b   echo\x3b   echo "Заявлено агентом: 94 тести, коміт e209972\x3b URL проєкту в User-Agent дає 0 з 60 помилок 429, без контакту 20 з 30\x3b --redirects none\x3b dry-run за виміряним часом."\x3b   echo '```'\x3b   uv run pytest -q 2>&1 | tail -1\x3b   uv run wiki-interest fetch --spec /tmp/fetch-check.json --dry-run --redirects none 2>/dev/null\x3b   echo '```'\x3b } >> ~/wiki-lab/verification-log.md;4f04693e-1ae4-4357-9e37-482c5d7d8138]633;C
+
 ## Етап 2 доповнення — контакт і --redirects (27.09.2026)
 
 Заявлено агентом: 94 тести, коміт e209972; URL проєкту в User-Agent дає 0 з 60 помилок 429, без контакту 20 з 30; --redirects none; dry-run за виміряним часом.

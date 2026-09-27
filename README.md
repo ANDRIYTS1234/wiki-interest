@@ -46,6 +46,13 @@ git clone https://github.com/ANDRIYTS1234/wiki-interest ~/.claude/skills/wiki-in
 uv run --project ~/.claude/skills/wiki-interest wiki-interest doctor   # creates the venv once
 ```
 
+Windows PowerShell does not expand `~` for `git`, so use `$HOME` there:
+
+```powershell
+git clone https://github.com/ANDRIYTS1234/wiki-interest "$HOME\.claude\skills\wiki-interest"
+uv run --project "$HOME\.claude\skills\wiki-interest" wiki-interest doctor
+```
+
 **Claude Code, for one project** (the team gets it through the repository):
 
 ```bash
