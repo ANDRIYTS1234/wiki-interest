@@ -92,7 +92,8 @@ uv run wiki-interest --cache-dir demo-cache --workdir demo analyze --spec exampl
 uv run wiki-interest --cache-dir demo-cache --workdir demo report --narrative examples/B-fasting/narrative.json
 ```
 
-`examples/A-astronomy/` is a larger spec (20 + 10 Wikidata items) that needs a live fetch.
+`examples/A-astronomy/` is a larger spec (20 + 10 Wikidata items) with its narrative and the report from a
+live run in `out/`; no cache snapshot (it needs a few minutes of live fetch).
 
 ## Tests
 
@@ -129,13 +130,14 @@ SKILL.md, references/      the skill: workflow and rules for the agent
 src/wiki_interest/         CLI: resolve, fetch, analyze/, report/, cache, http
 tests/                     unit, regression (resolve cases from the baselines), offline e2e
 examples/                  demo specs, narrative, cache snapshot
-docs/                      assignment, code contract (SPEC), roadmap, verification
+docs/                      assignment, code contract (SPEC), development, roadmap
 evals/                     baseline protocols, scenarios and trigger checks, agent runner
 ```
 
-## Growing the skill
+## Development and roadmap
 
-[docs/ROADMAP.md](docs/ROADMAP.md): the iteration loop (scenario → run without changes → fix in
-code or instructions → check in `evals/` → rerun) and the stages beyond the base version —
-automatic basket suggestion, ranking many audiences, larger data volumes.
-[docs/VERIFICATION.md](docs/VERIFICATION.md): how the AI-written code and the skill were checked.
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) — how the skill was built: baseline failures and what closes
+  each, how the AI-written code was checked (with the per-stage log in
+  [evals/verification-log.md](evals/verification-log.md)), runs on Haiku, results table.
+- [docs/ROADMAP.md](docs/ROADMAP.md) — how to grow it: the iteration loop and the next stages
+  (automatic basket suggestion, ranking many audiences, larger data volumes).
