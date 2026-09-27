@@ -80,6 +80,28 @@ def _format_value(path: str, kind: str, value: Any, lang: str) -> str:
     return FORMATTERS[kind](value, lang)
 
 
+RATIO_KEYS = {"index", "index_norm", "ratio", "ratio_norm", "median_ratio", "spread"}  # 1 = no change
+CHANGE_KEYS = {"change_abs", "change_norm", "share_change", "section_change"}  # 0 = no change
+
+
+def _check_kind(path: str, kind: str, where: str) -> None:
+    """:pct on a ratio would print 0.85 as +85% (a 15% fall); :x on a change would print -0.15 as -0,15x."""
+    key = path.rsplit(".", 1)[-1]
+    if key in RATIO_KEYS and kind == "pct":
+        suggestion = path.rsplit(".", 1)[0] + (".change_norm:pct" if key == "index_norm" else f".{key}:x")
+        raise InputError(
+            f"{where}: {{{path}:pct}} formats a ratio (1 = no change) as a percent change",
+            hint=f"Use {{{path}:x}}, or for a percent change {{{suggestion}}}",
+            code="bad_placeholder_format",
+        )
+    if key in CHANGE_KEYS and kind == "x":
+        raise InputError(
+            f"{where}: {{{path}:x}} formats a change (0 = no change) as a multiplier",
+            hint=f"Use {{{path}:pct}}",
+            code="bad_placeholder_format",
+        )
+
+
 def render_text(text: str, metrics: dict[str, Any], lang: str, where: str) -> str:
     out, pos = [], 0
     for m in PLACEHOLDER.finditer(text):
@@ -100,6 +122,7 @@ def render_text(text: str, metrics: dict[str, Any], lang: str, where: str) -> st
             )
         if not PATH_RE.fullmatch(path):
             raise InputError(f"{where}: invalid characters in placeholder path {path!r}", code="malformed_placeholder")
+        _check_kind(path, kind, where)
         value = get_path(metrics, path)
         out.append(_format_value(path, kind, value, lang))
         pos = m.end()

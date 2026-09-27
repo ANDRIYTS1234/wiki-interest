@@ -88,6 +88,18 @@ def test_render_text_formats_each_type(metrics):
     assert "%" in out and "×" in out and "[" in out
 
 
+@pytest.mark.parametrize("text, suggestion", [
+    ("{target.uk.window.index_norm:pct}", "target.uk.window.change_norm:pct"),
+    ("{target.uk.window.change_norm:x}", "target.uk.window.change_norm:pct"),
+    ("{target.uk.window.share_change:x}", "target.uk.window.share_change:pct"),
+])
+def test_render_text_rejects_ratio_change_format_mixup(metrics, text, suggestion):
+    with pytest.raises(InputError) as ei:
+        render_text(text, metrics, "en", "answer")
+    assert ei.value.code == "bad_placeholder_format"
+    assert suggestion in ei.value.hint
+
+
 def test_render_text_rejects_bare_number(metrics):
     with pytest.raises(InputError) as ei:
         render_text("Falls by 35% this year", metrics, "en", "answer")
